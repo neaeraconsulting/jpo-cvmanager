@@ -1,0 +1,34 @@
+FROM maven:3.9.6-eclipse-temurin-22-jammy AS builder
+
+WORKDIR /home/rsu-status-monitor
+
+COPY ./rsu-status-monitor/pom.xml .
+COPY ./rsu-status-monitor/settings.xml .
+COPY ./rsu-status-monitor/src ./src
+
+ARG MAVEN_GITHUB_TOKEN
+ARG MAVEN_GITHUB_ORG
+ENV MAVEN_GITHUB_TOKEN=$MAVEN_GITHUB_TOKEN
+ENV MAVEN_GITHUB_ORG=$MAVEN_GITHUB_ORG
+
+RUN mvn -s settings.xml dependency:resolve
+RUN mvn -s settings.xml install -DskipTests
+
+# Create a new stage for runtime
+FROM eclipse-temurin:22-jre-noble
+
+WORKDIR /home
+
+COPY --from=builder /home/rsu-status-monitor/src/main/resources/application.yaml /home
+COPY --from=builder /home/rsu-status-monitor/target/rsu-status-monitor.jar /home
+
+ENTRYPOINT ["java", \
+	"-Djava.rmi.server.hostname=$DOCKER_HOST_IP", \
+	"-Dcom.sun.management.jmxremote.port=9090", \
+	"-Dcom.sun.management.jmxremote.rmi.port=9090", \
+	"-Dcom.sun.management.jmxremote", \
+	"-Dcom.sun.management.jmxremote.local.only=true", \
+	"-Dcom.sun.management.jmxremote.authenticate=false", \
+	"-Dcom.sun.management.jmxremote.ssl=false", \
+	"-jar", \
+	"/home/rsu-status-monitor.jar"]

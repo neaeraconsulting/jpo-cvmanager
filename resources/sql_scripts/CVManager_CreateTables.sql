@@ -546,6 +546,25 @@ CREATE TABLE IF NOT EXISTS public.max_retry_limit_reached_instances
       ON DELETE NO ACTION
 );
 
+CREATE SEQUENCE public.rsu_nn_monitoring_rsu_nn_monitoring_id_seq
+   INCREMENT 1
+   START 1
+   MINVALUE 1
+   MAXVALUE 2147483647
+   CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.rsu_nn_monitoring
+(
+   rsu_nn_monitoring_id integer NOT NULL DEFAULT nextval('rsu_nn_monitoring_rsu_nn_monitoring_id_seq'::regclass),
+   rsu_id integer NOT NULL,
+   active boolean NOT NULL,
+   CONSTRAINT rsu_nn_monitoring_pkey PRIMARY KEY (rsu_nn_monitoring_id),
+   CONSTRAINT fk_rsu_id FOREIGN KEY (rsu_id)
+      REFERENCES public.rsus (rsu_id) MATCH SIMPLE
+      ON UPDATE NO ACTION
+      ON DELETE NO ACTION
+);
+
 -- Indexes
 CREATE INDEX idx_organizations_name ON public.organizations (name);
 
