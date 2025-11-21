@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class KafkaTopics {
     private String intersectionStatus;
+    private String monitoringStatus;
     private String nearestNeighborUnresponsiveEvent;
     private String nearestNeighborUnresponsiveNotification;
 }

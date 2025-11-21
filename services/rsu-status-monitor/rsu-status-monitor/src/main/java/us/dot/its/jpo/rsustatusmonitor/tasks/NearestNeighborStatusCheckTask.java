@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import us.dot.its.jpo.rsustatusmonitor.utils.DateJsonMapper;
  * This Task is responsible for checking what RSU units have not been heard from in the last 24 hours, and issuing events and notifications for RSU units that are missing.
  */
 @Component
+@ConditionalOnProperty(name = "enable.nearest-neighbor", havingValue = "true", matchIfMissing = false)
 @Slf4j
 public class NearestNeighborStatusCheckTask {
 

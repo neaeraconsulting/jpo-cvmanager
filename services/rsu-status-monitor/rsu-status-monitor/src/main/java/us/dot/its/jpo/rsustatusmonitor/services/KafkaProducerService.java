@@ -36,7 +36,7 @@ public class KafkaProducerService {
         try {
             String jsonMessage = objectMapper.writeValueAsString(message);
             String jsonKey = objectMapper.writeValueAsString(key);
-            kafkaTemplate.send(kafkaTopics.getIntersectionStatus(), jsonKey, jsonMessage);
+            kafkaTemplate.send(kafkaTopics.getMonitoringStatus(), jsonKey, jsonMessage);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize message" + message);
         }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.rsustatusmonitor.models.postgres.derived.RsuSnmpCredentials;
@@ -20,6 +21,7 @@ import us.dot.its.jpo.rsustatusmonitor.utils.SnmpHelperUtil;
  * Configuring the actual forwarding is performed asynchronously by the RsuNearestNeighborService
  */
 @Component
+@ConditionalOnProperty(name = "enable.nearest-neighbor", havingValue = "true", matchIfMissing = false)
 @Slf4j
 public class RsuNearestNeighborSnmpTask {
 

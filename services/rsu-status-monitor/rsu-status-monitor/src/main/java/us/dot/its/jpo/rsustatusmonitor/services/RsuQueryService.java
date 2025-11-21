@@ -38,7 +38,7 @@ public class RsuQueryService {
         String password = cred.getPassword();
         String encPass = cred.getEncrypt_password();
         String ip = cred.getIpv4_address();
-        String intersectionId = cred.getIntersection_id();
+        String intersectionId = cred.getIntersection_id() != null ? cred.getIntersection_id() : "-1";
 
         log.info("Pulling SNMP Status for RSU: " + ip + " IntersectionID: " + intersectionId);
 

@@ -3,6 +3,7 @@ rsu-status-monitor:
   kafka:
     topics:
       intersection-status: 'topic.RmIntersectionStatusRecords'
+      monitoring-status: 'topic.RmMonitoringStatusRecords'
       nearest-neighbor-unresponsive-event: 'topic.RmNearestNeighborUnresponsiveEvent'
       nearest-neighbor-unresponsive-notification: 'topic.RmNearestNeighborUnresponsiveNotification'
   snmp:

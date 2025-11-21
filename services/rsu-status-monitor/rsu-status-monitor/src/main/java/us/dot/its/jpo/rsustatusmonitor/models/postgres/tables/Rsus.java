@@ -19,7 +19,7 @@ public class Rsus {
 
     @Id
     private int rsu_id;
-    private Geometry geometry;
+    private Geometry geography;
     private float milepost;
     private String ipv4_address;
     private String serial_number;

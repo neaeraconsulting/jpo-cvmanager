@@ -2,9 +2,9 @@ FROM maven:3.9.6-eclipse-temurin-22-jammy AS builder
 
 WORKDIR /home/rsu-status-monitor
 
-COPY ./rsu-status-monitor/pom.xml .
-COPY ./rsu-status-monitor/settings.xml .
-COPY ./rsu-status-monitor/src ./src
+COPY ./rsu-status-monitor/rsu-status-monitor/pom.xml .
+COPY ./rsu-status-monitor/rsu-status-monitor/settings.xml .
+COPY ./rsu-status-monitor/rsu-status-monitor/src ./src
 
 ARG MAVEN_GITHUB_TOKEN
 ARG MAVEN_GITHUB_ORG

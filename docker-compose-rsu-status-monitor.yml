@@ -4,7 +4,8 @@ services:
       - rsu_status_monitor
     image: rsu-status-monitor:latest
     build:
-      context: ./services/rsu-status-monitor
+      context: ./services
+      dockerfile: Dockerfile.rsu_status_monitor
       args:
         MAVEN_GITHUB_TOKEN: ${MAVEN_GITHUB_TOKEN:?error}
         MAVEN_GITHUB_ORG: ${MAVEN_GITHUB_ORG:?error}
@@ -21,6 +22,9 @@ services:
       POSTGRES_DB: ${PG_DB_NAME:-postgres}
       POSTGRES_USER: ${PG_DB_USER:-postgres}
       POSTGRES_PASSWORD: ${PG_DB_PASS:-postgres}
+      RSU_STATUS_MONITOR_ENABLE_MONITORING: ${RSU_STATUS_MONITOR_ENABLE_MONITORING:-true}
+      RSU_STATUS_MONITOR_ENABLE_NEAREST_NEIGHBOR: ${RSU_STATUS_MONITOR_ENABLE_NEAREST_NEIGHBOR:-false}
+      INTERSECTION_API_MONITOR_INTERVAL: ${INTERSECTION_API_MONITOR_INTERVAL:-300000}
     depends_on:
       cvmanager_postgres:
         required: false
