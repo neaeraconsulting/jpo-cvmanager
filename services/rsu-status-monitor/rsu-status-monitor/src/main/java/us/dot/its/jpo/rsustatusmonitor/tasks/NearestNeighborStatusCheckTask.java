@@ -25,7 +25,7 @@ import us.dot.its.jpo.rsustatusmonitor.utils.DateJsonMapper;
  * This Task is responsible for checking what RSU units have not been heard from in the last 24 hours, and issuing events and notifications for RSU units that are missing.
  */
 @Component
-@ConditionalOnProperty(name = "enable.nearest-neighbor", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "enable.nearestNeighbor", havingValue = "true", matchIfMissing = false)
 @Slf4j
 public class NearestNeighborStatusCheckTask {
 

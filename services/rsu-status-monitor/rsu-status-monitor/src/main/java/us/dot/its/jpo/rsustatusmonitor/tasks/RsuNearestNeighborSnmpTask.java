@@ -21,7 +21,7 @@ import us.dot.its.jpo.rsustatusmonitor.utils.SnmpHelperUtil;
  * Configuring the actual forwarding is performed asynchronously by the RsuNearestNeighborService
  */
 @Component
-@ConditionalOnProperty(name = "enable.nearest-neighbor", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "enable.nearestNeighbor", havingValue = "true", matchIfMissing = false)
 @Slf4j
 public class RsuNearestNeighborSnmpTask {
 
