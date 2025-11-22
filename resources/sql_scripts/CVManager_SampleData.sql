@@ -85,7 +85,3 @@ INSERT INTO public.intersection_organization(
 INSERT INTO public.rsu_intersection(
 	rsu_id, intersection_id)
 	VALUES (1, 1);
-
-INSERT INTO public.rsu_intersection(
-	rsu_id, intersection_id)
-	VALUES (1, 1);
