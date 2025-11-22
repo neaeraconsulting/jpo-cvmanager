@@ -13,9 +13,6 @@ import org.springframework.stereotype.Component;
 public class RsuStatusMonitorProperties {
 
     final BuildProperties buildProperties;
-    // private String rsuStatusKafkaTopic;
-    // private String rsuNearestNeighborUnresponsiveEventTopic;
-    // private String rsuNearestNeighborUnresponsiveNotificationTopic;
 
     @Autowired
     public RsuStatusMonitorProperties(BuildProperties buildProperties) {
@@ -32,36 +29,4 @@ public class RsuStatusMonitorProperties {
     public String getVersion() {
         return buildProperties.getVersion();
     }
-
-    // @Value("${rsu-status-monitor.kafka.topics.intersection-status}")
-    // public void setRsuStatusKafkaTopic(String rsuStatusKafkaTopic) {
-    // this.rsuStatusKafkaTopic = rsuStatusKafkaTopic;
-    // }
-
-    // public String getRsuStatusKafkaTopic() {
-    // return rsuStatusKafkaTopic;
-    // }
-
-    // @Value("${rsu-status-monitor.kafka.topics.nearest-neighbor-unresponsive-event}")
-    // public void setRsuNearestNeighborUnresponsiveEventKafkaTopic(String
-    // rsuNearestNeighborUnresponsiveEventTopic) {
-    // this.rsuNearestNeighborUnresponsiveEventTopic =
-    // rsuNearestNeighborUnresponsiveEventTopic;
-    // }
-
-    // public String getRsuNearestNeighborUnresponsiveEventKafkaTopic() {
-    // return rsuNearestNeighborUnresponsiveEventTopic;
-    // }
-
-    // @Value("${rsu-status-monitor.kafka.topics.nearest-neighbor-unresponsive-notification}")
-    // public void setRsuNearestNeighborUnresponsiveNotificationKafkaTopic(
-    // String rsuNearestNeighborUnresponsiveNotificationTopic) {
-    // this.rsuNearestNeighborUnresponsiveEventTopic =
-    // rsuNearestNeighborUnresponsiveNotificationTopic;
-    // }
-
-    // public String getRsuNearestNeighborUnresponsiveNotificationKafkaTopic() {
-    // return rsuNearestNeighborUnresponsiveNotificationTopic;
-    // }
-
 }

@@ -12,7 +12,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import us.dot.its.jpo.rsustatusmonitor.models.IntersectionStatusRecord;
 import us.dot.its.jpo.rsustatusmonitor.utils.DateJsonMapper;
-import us.dot.its.jpo.rsustatusmonitor.utils.UdpHexUtils;
+import us.dot.its.jpo.rsustatusmonitor.utils.UdpHexUtil;
 
 @Slf4j
 public class UdpReceiver extends AbstractUdpReceiver {
@@ -50,14 +50,14 @@ public class UdpReceiver extends AbstractUdpReceiver {
         String senderIp = packet.getAddress().getHostAddress();
         log.debug("Packet received from {}", senderIp);
 
-        String uperHex = UdpHexUtils.getMapUperHexString(packet);
+        String uperHex = UdpHexUtil.getMapUperHexString(packet);
         log.debug("UPER hex extracted from packet: {}", uperHex);
 
         byte[] bytes = HexFormat.of().parseHex(uperHex);
         String xer = codec.uperToXer(bytes);
         log.debug("XER representation: {}", xer);
 
-        Integer intersectionId = UdpHexUtils.getIntersectionId(xer);
+        Integer intersectionId = UdpHexUtil.getIntersectionId(xer);
         log.debug("Intersection ID: '{}' From IP: '{}'", intersectionId, senderIp);
 
         // Create IntersectionStatusRecord object to hold the status information

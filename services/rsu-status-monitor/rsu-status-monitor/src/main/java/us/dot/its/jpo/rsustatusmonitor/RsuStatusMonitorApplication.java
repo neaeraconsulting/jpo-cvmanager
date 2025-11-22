@@ -20,17 +20,14 @@ import org.springframework.context.annotation.Bean;
 @Slf4j
 public class RsuStatusMonitorApplication {
 
-   static final int DEFAULT_NO_THREADS = 10;
-   static final String DEFAULT_SCHEMA = "default";
+    public static void main(String[] args) throws MalformedObjectNameException, InterruptedException,
+            InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
+        SpringApplication.run(RsuStatusMonitorApplication.class, args);
+    }
 
-   public static void main(String[] args) throws MalformedObjectNameException, InterruptedException,
-         InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
-      SpringApplication.run(RsuStatusMonitorApplication.class, args);
-   }
-
-   @Bean
-   CommandLineRunner init(RsuStatusMonitorProperties rsuStatusMonitorProperties) {
-      return args -> {
-      };
-   }
+    @Bean
+    CommandLineRunner init(RsuStatusMonitorProperties rsuStatusMonitorProperties) {
+        return args -> {
+        };
+    }
 }

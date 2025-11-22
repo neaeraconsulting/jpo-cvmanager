@@ -24,6 +24,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.language>java</sonar.language>
+		<sonar.coverage.exclusions>**/*Config.java,**/kafka/KafkaTopics.java,**/snmp/*Properties.java,**/utils/DateJsonMapper.java</sonar.coverage.exclusions>
         <github_organization>usdot-jpo-ode</github_organization>
     </properties>
 
@@ -87,14 +88,6 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Unit Test Dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -210,13 +203,6 @@
                         -XX:+EnableDynamicAgentLoading
                     </argLine>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>3.2.5</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>
@@ -235,6 +221,14 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<excludes>
+								<exclude>**/*Config.class</exclude>
+								<exclude>**/kafka/KafkaTopics.class</exclude>
+								<exclude>**/snmp/*Properties.class</exclude>
+								<exclude>**/utils/DateJsonMapper.class</exclude>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
             </plugin>

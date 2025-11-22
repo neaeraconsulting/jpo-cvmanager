@@ -6,7 +6,7 @@ import org.apache.tomcat.util.buf.HexUtils;
 import us.dot.its.jpo.rsustatusmonitor.udp.InvalidPayloadException;
 
 @Slf4j
-public class UdpHexUtils {
+public class UdpHexUtil {
 
     public static final String MAP_START_FLAG = "0012";
 
