@@ -36,7 +36,7 @@ public class RsuMonitoringTask {
 
     @Scheduled(fixedRateString = "${monitor.interval}")
     public void queryRSUStats() {
-        List<RsuSnmpCredentials> credentials = postgresService.getRsusWithCredentials(false);
+        List<RsuSnmpCredentials> credentials = postgresService.getRsusWithCredentials();
 
         // Process all RSU credentials in parallel using CompletableFuture
         List<CompletableFuture<Void>> futures = credentials.stream()

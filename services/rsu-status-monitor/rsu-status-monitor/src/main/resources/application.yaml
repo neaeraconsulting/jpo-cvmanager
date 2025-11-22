@@ -2,29 +2,11 @@
 rsu-status-monitor:
   kafka:
     topics:
-      intersection-status: 'topic.RmIntersectionStatusRecords'
       monitoring-status: 'topic.RmMonitoringStatusRecords'
-      nearest-neighbor-unresponsive-event: 'topic.RmNearestNeighborUnresponsiveEvent'
-      nearest-neighbor-unresponsive-notification: 'topic.RmNearestNeighborUnresponsiveNotification'
   snmp:
     retries: ${RSU_STATUS_MONITOR_SNMP_RETRY:2} # Number of times to retry
     timeout: ${RSU_STATUS_MONITOR_SNMP_TIMEOUT_MS:5000} # Number of milliseconds before timeout
     port: ${RSU_STATUS_MONITOR_SNMP_PORT:161} # Port to use for SNMP Operations
-    nearest-neighbor-monitor:
-      psid: E0000017 # J2735 Map
-      destination-ip: ${DESTINATION_IP:localhost}
-      port: 42300
-      protocol: 2 # TCP:1 UDP:2
-      rssi: -100
-      interval: 1
-      secure: 0
-      auth-msg-interval: 0
-
-# J2735 FFM properties
-j2735.api:
-  text-buffer-size: ${J2735_ASN_TEXT_BUFFER_SIZE:262144}
-  uper-buffer-size: ${J2735_UPER_BUFFER_SIZE:8192}
-  error-buffer-size: ${J2735_ERROR_BUFFER_SIZE:256}
 
 logging:
   level:
@@ -84,7 +66,6 @@ spring:
 
 enable:
   monitoring: ${RSU_STATUS_MONITOR_ENABLE_MONITORING:true}
-  nearest-neighbor: ${RSU_STATUS_MONITOR_ENABLE_NEAREST_NEIGHBOR:true}
 
 monitor:
   interval: ${INTERSECTION_API_MONITOR_INTERVAL:300000} # Number of Milliseconds between RSU Status Checks

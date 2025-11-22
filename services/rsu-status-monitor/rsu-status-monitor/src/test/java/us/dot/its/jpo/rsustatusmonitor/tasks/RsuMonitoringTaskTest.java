@@ -36,11 +36,11 @@ public class RsuMonitoringTaskTest {
 
     @Test
     public void testQueryRSUStats_NoCredentials() {
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(new ArrayList<>());
+        when(postgresService.getRsusWithCredentials()).thenReturn(new ArrayList<>());
 
         task.queryRSUStats();
 
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, never()).getRsuInformation(any());
     }
 
@@ -51,11 +51,11 @@ public class RsuMonitoringTaskTest {
                 "12345");
         credentials.add(cred1);
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         task.queryRSUStats();
 
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, times(1)).getRsuInformation(cred1);
     }
 
@@ -72,11 +72,11 @@ public class RsuMonitoringTaskTest {
         credentials.add(cred2);
         credentials.add(cred3);
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         task.queryRSUStats();
 
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, times(1)).getRsuInformation(cred1);
         verify(rsuQueryService, times(1)).getRsuInformation(cred2);
         verify(rsuQueryService, times(1)).getRsuInformation(cred3);
@@ -90,7 +90,7 @@ public class RsuMonitoringTaskTest {
                     String.valueOf(10000 + i)));
         }
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         CountDownLatch latch = new CountDownLatch(10);
         AtomicInteger concurrentCalls = new AtomicInteger(0);
@@ -127,7 +127,7 @@ public class RsuMonitoringTaskTest {
         credentials.add(cred1);
         credentials.add(cred2);
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         // First RSU throws exception, second succeeds
         doThrow(new RuntimeException("SNMP connection failed")).when(rsuQueryService).getRsuInformation(cred1);
@@ -135,7 +135,7 @@ public class RsuMonitoringTaskTest {
 
         task.queryRSUStats();
 
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, times(1)).getRsuInformation(cred1);
         verify(rsuQueryService, times(1)).getRsuInformation(cred2);
     }
@@ -150,13 +150,13 @@ public class RsuMonitoringTaskTest {
         credentials.add(cred1);
         credentials.add(cred2);
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
         doThrow(new RuntimeException("Network error")).when(rsuQueryService)
                 .getRsuInformation(any(RsuSnmpCredentials.class));
 
         task.queryRSUStats();
 
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, times(2)).getRsuInformation(any(RsuSnmpCredentials.class));
     }
 
@@ -169,27 +169,12 @@ public class RsuMonitoringTaskTest {
                     String.valueOf(20000 + i)));
         }
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         task.queryRSUStats();
 
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, times(50)).getRsuInformation(any(RsuSnmpCredentials.class));
-    }
-
-    @Test
-    public void testQueryRSUStats_VerifyFalseParameter() {
-        List<RsuSnmpCredentials> credentials = new ArrayList<>();
-        RsuSnmpCredentials cred1 = new RsuSnmpCredentials(1, "192.168.1.1", "user1", "pass1", "encPass1", "SNMPv3",
-                "12345");
-        credentials.add(cred1);
-
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
-
-        task.queryRSUStats();
-
-        verify(postgresService).getRsusWithCredentials(eq(false));
-        verify(postgresService, never()).getRsusWithCredentials(eq(true));
     }
 
     @Test
@@ -200,7 +185,7 @@ public class RsuMonitoringTaskTest {
                     String.valueOf(30000 + i)));
         }
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         AtomicInteger completedCount = new AtomicInteger(0);
 
@@ -231,7 +216,7 @@ public class RsuMonitoringTaskTest {
         credentials.add(cred3);
         credentials.add(cred4);
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         // Mix of success and failure
         doNothing().when(rsuQueryService).getRsuInformation(cred1);
@@ -241,7 +226,7 @@ public class RsuMonitoringTaskTest {
 
         task.queryRSUStats();
 
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, times(1)).getRsuInformation(cred1);
         verify(rsuQueryService, times(1)).getRsuInformation(cred2);
         verify(rsuQueryService, times(1)).getRsuInformation(cred3);
@@ -255,7 +240,7 @@ public class RsuMonitoringTaskTest {
                 "testencpass", "SNMPv3", "99999");
         credentials.add(expectedCred);
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         task.queryRSUStats();
 
@@ -277,7 +262,7 @@ public class RsuMonitoringTaskTest {
                     String.valueOf(40000 + i)));
         }
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch completeLatch = new CountDownLatch(10);
@@ -314,7 +299,7 @@ public class RsuMonitoringTaskTest {
         credentials.add(cred2);
         credentials.add(cred3);
 
-        when(postgresService.getRsusWithCredentials(false)).thenReturn(credentials);
+        when(postgresService.getRsusWithCredentials()).thenReturn(credentials);
 
         // Different types of exceptions
         doThrow(new RuntimeException("Network error")).when(rsuQueryService).getRsuInformation(cred1);
@@ -324,7 +309,7 @@ public class RsuMonitoringTaskTest {
         task.queryRSUStats();
 
         // Should handle all exception types gracefully
-        verify(postgresService).getRsusWithCredentials(false);
+        verify(postgresService).getRsusWithCredentials();
         verify(rsuQueryService, times(3)).getRsuInformation(any(RsuSnmpCredentials.class));
     }
 }
