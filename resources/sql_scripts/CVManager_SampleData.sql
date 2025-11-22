@@ -89,7 +89,3 @@ INSERT INTO public.rsu_intersection(
 INSERT INTO public.rsu_intersection(
 	rsu_id, intersection_id)
 	VALUES (1, 1);
-
-INSERT INTO public.rsu_nn_monitoring(
-	rsu_id, active)
-	VALUES (1, true);
