@@ -251,7 +251,7 @@
 								<manifest>
 									<addClasspath>true</addClasspath>
 									<classpathPrefix>lib/</classpathPrefix>
-									<mainClass>us.dot.its.jpo.ode.api.ConflictApiApplication</mainClass>
+									<mainClass>us.dot.its.jpo.rsustatusmonitor.RsuStatusMonitorApplication</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
