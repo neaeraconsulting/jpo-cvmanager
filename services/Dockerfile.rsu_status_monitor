@@ -4,7 +4,6 @@ WORKDIR /home/rsu-status-monitor
 
 COPY ./rsu-status-monitor/rsu-status-monitor/pom.xml .
 COPY ./rsu-status-monitor/rsu-status-monitor/settings.xml .
-COPY ./rsu-status-monitor/rsu-status-monitor/src ./src
 
 ARG MAVEN_GITHUB_TOKEN
 ARG MAVEN_GITHUB_ORG
@@ -12,6 +11,9 @@ ENV MAVEN_GITHUB_TOKEN=$MAVEN_GITHUB_TOKEN
 ENV MAVEN_GITHUB_ORG=$MAVEN_GITHUB_ORG
 
 RUN mvn -s settings.xml dependency:resolve
+
+# Copies source code after dependencies are resolved to leverage Docker caching
+COPY ./rsu-status-monitor/rsu-status-monitor/src ./src
 RUN mvn -s settings.xml install -DskipTests
 
 # Create a new stage for runtime
