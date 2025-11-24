@@ -10,7 +10,7 @@ services:
         MAVEN_GITHUB_TOKEN: ${MAVEN_GITHUB_TOKEN:?error}
         MAVEN_GITHUB_ORG: ${MAVEN_GITHUB_ORG:?error}
     ports:
-      - '8083:8080'
+      - '8086:8080'
       - '42300:42300/udp'
     environment:
       LOGGING_LEVEL: ${RSU_STATUS_LOGGING_LEVEL}
