@@ -25,7 +25,8 @@ jest.mock('dayjs', () => {
   return mockDayjs
 })
 
-jest.useFakeTimers().setSystemTime(new Date('2025-04-07'))
+// Use UTC time to ensure consistent behavior across different timezones (local dev vs GitHub Actions)
+jest.useFakeTimers().setSystemTime(new Date('2025-04-07T00:00:00.000Z'))
 
 it('should take a snapshot', () => {
   const { container } = render(
