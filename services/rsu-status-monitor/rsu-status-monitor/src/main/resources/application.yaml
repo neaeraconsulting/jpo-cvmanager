@@ -62,7 +62,7 @@ spring:
       concurrency: ${KAFKA_CONCURRENCY:1}
   config:
     import:
-      - classpath:application-local.yaml
+      - classpath:application-confluent.yaml
 
 enable:
   monitoring: ${RSU_STATUS_MONITOR_ENABLE_MONITORING:true}

@@ -22,6 +22,7 @@ FROM eclipse-temurin:22-jre-noble
 WORKDIR /home
 
 COPY --from=builder /home/rsu-status-monitor/src/main/resources/application.yaml /home
+COPY --from=builder /home/rsu-status-monitor/src/main/resources/application-confluent.yaml /home
 COPY --from=builder /home/rsu-status-monitor/target/rsu-status-monitor.jar /home
 
 ENTRYPOINT ["java", \
