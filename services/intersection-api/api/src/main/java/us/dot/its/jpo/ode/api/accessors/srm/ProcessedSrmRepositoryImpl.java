@@ -91,6 +91,44 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
     }
 
     /**
+     * Filter OdeSrmData by originIp, vehicleId, startTime, endTime, and a bounding
+     * box
+     * 
+     * @param originIp  the origin IP
+     * @param vehicleId the vehicle ID
+     * @param startTime the start time
+     * @param endTime   the end time
+     * @param centerLng the longitude (in degrees) of the center of the bounding box
+     * @param centerLat the latitude (in degrees) of the center of the bounding box
+     * @param distance  the "radius" of the bounding box, in meters (total width is
+     *                  2x distance)
+     */
+    public Page<ProcessedSrm> findByIntersection(String originIp, String vehicleId, Long startTime, Long endTime,
+            Integer intersectionID, Pageable pageable) {
+
+        System.out.println(originIp + " " + vehicleId + " " + startTime + " " + endTime + " " + intersectionID);
+
+        Criteria criteria = new IntersectionCriteria()
+                .whereOptional(ORIGIN_IP_FIELD, originIp)
+                .whereOptional(VEHICLE_ID_FIELD, vehicleId);
+        if (intersectionID != null) {
+            criteria = criteria.and("properties.requests")
+                    .elemMatch(Criteria.where("intersectionId").is(intersectionID));
+        }
+
+        Sort sort = Sort.by(Sort.Direction.DESC, DATE_FIELD);
+        List<String> excludedFields = List.of(RECORD_GENERATED_AT_FIELD);
+
+        Page<Document> aggregationResult = findDocumentsWithPagination(mongoTemplate, collectionName, pageable,
+                criteria, sort, excludedFields);
+
+        List<ProcessedSrm> srms = aggregationResult.getContent().stream()
+                .map(document -> mapper.convertValue(document, ProcessedSrm.class)).toList();
+
+        return new PageImpl<ProcessedSrm>(srms, pageable, aggregationResult.getTotalElements());
+    }
+
+    /**
      * Count filtered OdeSrmData by originIp, vehicleId, startTime, endTime, and a
      * bounding box
      * 
