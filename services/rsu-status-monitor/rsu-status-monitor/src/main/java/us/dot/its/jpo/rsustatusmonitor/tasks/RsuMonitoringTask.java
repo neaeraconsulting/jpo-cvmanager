@@ -30,8 +30,8 @@ public class RsuMonitoringTask {
             PostgresService postgresService) {
         this.rsuQueryService = rsuQueryService;
         this.postgresService = postgresService;
-        // Create a fixed thread pool with 10 threads for RSU monitoring
-        this.taskExecutor = Executors.newFixedThreadPool(10);
+        // Create a virtual thread executor - no upper bound limit needed
+        this.taskExecutor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     @Scheduled(fixedRateString = "${monitor.interval}")

@@ -5,7 +5,7 @@ rsu-status-monitor:
       monitoring-status: 'topic.RmMonitoringStatusRecords'
   snmp:
     retries: ${RSU_STATUS_MONITOR_SNMP_RETRY:2} # Number of times to retry
-    timeout: ${RSU_STATUS_MONITOR_SNMP_TIMEOUT_MS:5000} # Number of milliseconds before timeout
+    timeout: ${RSU_STATUS_MONITOR_SNMP_TIMEOUT_MS:10000} # Number of milliseconds before timeout
     port: ${RSU_STATUS_MONITOR_SNMP_PORT:161} # Port to use for SNMP Operations
 
 logging:
