@@ -507,6 +507,7 @@ export const pullInitialData = createAsyncThunk(
     if (!selectAbortAllFutureRequests(getState() as RootState)) {
       dispatch(renderIterative_Bsm(bsmGeojson.features))
     }
+    dispatch(setRawData({ bsm: bsmGeojson, map: rawMap, spat: rawSpat }))
     return
   },
   {
