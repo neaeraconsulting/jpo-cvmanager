@@ -51,10 +51,8 @@ public class ProcessedSrmController {
             @RequestParam(name = "vehicle_id", required = false) String vehicleId,
             @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
             @RequestParam(name = "end_time_utc_millis", required = false) Long endTime,
-            @RequestParam(name = "latitude", required = false) Double latitude,
-            @RequestParam(name = "longitude", required = false) Double longitude,
-            @RequestParam(name = "distance", required = false) Double distanceInMeters,
-            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "intersection_id", required = false) Integer intersectionId,
+                    @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "10000") int size,
             @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
 
@@ -65,8 +63,8 @@ public class ProcessedSrmController {
                     .ok(new PageImpl<>(list, PageRequest.of(page, size), list.size()));
         } else {
             PageRequest pageable = PageRequest.of(page, size);
-            Page<ProcessedSrm> response = processedSrmJsonRepo.find(originIp, vehicleId, startTime, endTime,
-                    longitude, latitude, distanceInMeters, pageable);
+            Page<ProcessedSrm> response = processedSrmJsonRepo.find(intersectionId, vehicleId, startTime, endTime,
+                    pageable);
             return ResponseEntity.ok(response);
         }
     }
@@ -79,20 +77,16 @@ public class ProcessedSrmController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Requires SUPER_USER or USER role"),
     })
     public ResponseEntity<Long> countProcessedSRMs(
-            @RequestParam(name = "origin_ip", required = false) String originIp,
-            @RequestParam(name = "vehicle_id", required = false) String vehicleId,
+            @RequestParam(name = "intersection_id", required = false) Integer intersectionId,
+                    @RequestParam(name = "vehicle_id", required = false) String vehicleId,
             @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
             @RequestParam(name = "end_time_utc_millis", required = false) Long endTime,
-            @RequestParam(name = "latitude", required = false) Double latitude,
-            @RequestParam(name = "longitude", required = false) Double longitude,
-            @RequestParam(name = "distance", required = false) Double distanceInMeters,
-            @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
+                    @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
 
         if (testData) {
             return ResponseEntity.ok(10L);
         } else {
-            long counts = processedSrmJsonRepo.count(originIp, vehicleId, startTime, endTime, longitude,
-                    latitude, distanceInMeters);
+            long counts = processedSrmJsonRepo.count(intersectionId, vehicleId, startTime, endTime);
             log.debug("Found {} SRM counts", counts);
             return ResponseEntity.ok(counts);
         }

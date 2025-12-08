@@ -59,12 +59,10 @@ export const intersectionMapApiSlice = createApi({
       },
       transformResponse: (response: { content: ProcessedSsm[] }) => addSsmTimestampsAndSortAscending(response.content),
     }),
-    getSrmWithinTimeWindow: builder.query<ProcessedSrmFeature[], { loc: LocationParams; timeWindow: TimeWindow }>({
-      query: ({ loc, timeWindow }) => {
+    getSrmWithinTimeWindow: builder.query<ProcessedSrmFeature[], { intersectionId: number; timeWindow: TimeWindow }>({
+      query: ({ intersectionId, timeWindow }) => {
         return `/processed-srm${getQueryString({
-          longitude: loc.longitude.toString(),
-          latitude: loc.latitude.toString(),
-          distance: loc.distance.toString(),
+          intersection_id: intersectionId.toString(),
           start_time_utc_millis: timeWindow.startMillis.toString(),
           end_time_utc_millis: timeWindow.endMillis.toString(),
         })}`
@@ -97,20 +95,12 @@ export const fetchSsmWithinTimeWindow = (queryParams: MAP_QUERY_PARAMS, dispatch
 }
 
 // Helper function to manually fetch SSM data
-export const fetchSrmWithinTimeWindow = (
-  queryParams: MAP_QUERY_PARAMS,
-  mapCoordinates: OdePosition3D,
-  dispatch: any
-) => {
+export const fetchSrmWithinTimeWindow = (queryParams: MAP_QUERY_PARAMS, dispatch: any) => {
+  const intersectionId = queryParams.intersectionId
   const timeWindow = getTimeWindowFromQueryParams(queryParams)
-  const loc = {
-    longitude: mapCoordinates.longitude,
-    latitude: mapCoordinates.latitude,
-    distance: 500,
-  }
   return dispatch(
     intersectionMapApiSlice.endpoints.getSrmWithinTimeWindow.initiate({
-      loc,
+      intersectionId,
       timeWindow,
     })
   )

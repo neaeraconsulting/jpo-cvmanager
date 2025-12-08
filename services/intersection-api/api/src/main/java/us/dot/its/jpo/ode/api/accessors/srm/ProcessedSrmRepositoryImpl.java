@@ -31,7 +31,6 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
 
     private final String collectionName = "ProcessedSrm";
     private final String DATE_FIELD = "properties.timeStamp";
-    private final String ORIGIN_IP_FIELD = "properties.originIp";
     private final String VEHICLE_ID_FIELD = "properties.vehicleID";
     private final String LONGITUDE_FIELD = "geometry.coordinates.0";
     private final String LATITUDE_FIELD = "geometry.coordinates.1";
@@ -48,7 +47,6 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
      * Filter OdeSrmData by originIp, vehicleId, startTime, endTime, and a bounding
      * box
      * 
-     * @param originIp  the origin IP
      * @param vehicleId the vehicle ID
      * @param startTime the start time
      * @param endTime   the end time
@@ -57,14 +55,10 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
      * @param distance  the "radius" of the bounding box, in meters (total width is
      *                  2x distance)
      */
-    public Page<ProcessedSrm> find(String originIp, String vehicleId, Long startTime, Long endTime,
+    public Page<ProcessedSrm> findByLocation(String vehicleId, Long startTime, Long endTime,
             Double centerLng, Double centerLat, Double distance, Pageable pageable) {
 
-        System.out.println(originIp + " " + vehicleId + " " + startTime + " " + endTime + " " + centerLng + " "
-                + centerLat + " " + distance);
-
         Criteria criteria = new IntersectionCriteria()
-                .whereOptional(ORIGIN_IP_FIELD, originIp)
                 .whereOptional(VEHICLE_ID_FIELD, vehicleId)
                 .withinTimeWindow(DATE_FIELD, startTime, endTime, true);
 
@@ -94,23 +88,17 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
      * Filter OdeSrmData by originIp, vehicleId, startTime, endTime, and a bounding
      * box
      * 
-     * @param originIp  the origin IP
-     * @param vehicleId the vehicle ID
-     * @param startTime the start time
-     * @param endTime   the end time
-     * @param centerLng the longitude (in degrees) of the center of the bounding box
-     * @param centerLat the latitude (in degrees) of the center of the bounding box
-     * @param distance  the "radius" of the bounding box, in meters (total width is
-     *                  2x distance)
+     * @param vehicleId      the vehicle ID
+     * @param startTime      the start time
+     * @param endTime        the end time
+     * @param intersectionID the intersection ID
      */
-    public Page<ProcessedSrm> findByIntersection(String originIp, String vehicleId, Long startTime, Long endTime,
-            Integer intersectionID, Pageable pageable) {
-
-        System.out.println(originIp + " " + vehicleId + " " + startTime + " " + endTime + " " + intersectionID);
+    public Page<ProcessedSrm> find(Integer intersectionID, String vehicleId, Long startTime, Long endTime,
+            Pageable pageable) {
 
         Criteria criteria = new IntersectionCriteria()
-                .whereOptional(ORIGIN_IP_FIELD, originIp)
-                .whereOptional(VEHICLE_ID_FIELD, vehicleId);
+                .whereOptional(VEHICLE_ID_FIELD, vehicleId)
+                .withinTimeWindow(DATE_FIELD, startTime, endTime, true);
         if (intersectionID != null) {
             criteria = criteria.and("properties.requests")
                     .elemMatch(Criteria.where("intersectionId").is(intersectionID));
@@ -142,28 +130,17 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
      *                  2x distance)
      */
     public long count(
-            String originIp,
-            String vehicleId,
+            Integer intersectionID,
+                    String vehicleId,
             Long startTime,
-            Long endTime,
-            Double centerLng,
-            Double centerLat,
-            Double distance) {
+            Long endTime) {
 
         Criteria criteria = new IntersectionCriteria()
-                .whereOptional(ORIGIN_IP_FIELD, originIp)
                 .whereOptional(VEHICLE_ID_FIELD, vehicleId)
                 .withinTimeWindow(DATE_FIELD, startTime, endTime, true);
-
-        if (centerLng != null && centerLat != null && distance != null) {
-            Envelope boundingBox = GeographyCalculator.calculateBoundingBox(centerLng, centerLat, distance);
-
-            criteria = criteria.and(LATITUDE_FIELD)
-                    .gte(boundingBox.getMinY())
-                    .lte(boundingBox.getMaxY())
-                    .and(LONGITUDE_FIELD)
-                    .gte(boundingBox.getMinX())
-                    .lte(boundingBox.getMaxX());
+        if (intersectionID != null) {
+            criteria = criteria.and("properties.requests")
+                    .elemMatch(Criteria.where("intersectionId").is(intersectionID));
         }
         Query query = Query.query(criteria);
         return mongoTemplate.count(query, Map.class, collectionName);
