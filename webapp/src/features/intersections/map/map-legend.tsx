@@ -232,7 +232,7 @@ export const MapLegend = (props: MapLegendProps) => {
             margin: '5px',
           }}
         >
-          <div style={{ height: 20, width: 20, backgroundColor: value as string, borderRadius: '50%' }} />
+          <div style={{ height: 20, width: 20, backgroundColor: value as string }} />
           <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
             {key.toLowerCase()}
           </Typography>
@@ -269,7 +269,7 @@ export const MapLegend = (props: MapLegendProps) => {
           bottom: theme.spacing(3),
           maxHeight: 'calc(100vh - 240px)',
           right: 0,
-          width: props.openPanel === 'map-legend' ? 600 : 0,
+          width: props.openPanel === 'map-legend' ? 'auto' : 0,
           fontSize: '16px',
         }}
       >
