@@ -88,10 +88,10 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
      * Filter OdeSrmData by originIp, vehicleId, startTime, endTime, and a bounding
      * box
      * 
+     * @param intersectionID the intersection ID
      * @param vehicleId      the vehicle ID
      * @param startTime      the start time
      * @param endTime        the end time
-     * @param intersectionID the intersection ID
      */
     public Page<ProcessedSrm> find(Integer intersectionID, String vehicleId, Long startTime, Long endTime,
             Pageable pageable) {
@@ -120,14 +120,10 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
      * Count filtered OdeSrmData by originIp, vehicleId, startTime, endTime, and a
      * bounding box
      * 
-     * @param originIp  the origin IP
-     * @param vehicleId the vehicle ID
-     * @param startTime the start time
-     * @param endTime   the end time
-     * @param centerLng the longitude (in degrees) of the center of the bounding box
-     * @param centerLat the latitude (in degrees) of the center of the bounding box
-     * @param distance  the "radius" of the bounding box, in meters (total width is
-     *                  2x distance)
+     * @param intersectionID the intersection ID
+     * @param vehicleId      the vehicle ID
+     * @param startTime      the start time
+     * @param endTime        the end time
      */
     public long count(
             Integer intersectionID,
