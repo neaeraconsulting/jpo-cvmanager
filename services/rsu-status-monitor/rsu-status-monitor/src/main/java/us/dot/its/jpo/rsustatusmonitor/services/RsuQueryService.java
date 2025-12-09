@@ -5,7 +5,6 @@ import java.time.Instant;
 
 import org.snmp4j.smi.Variable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,6 @@ public class RsuQueryService {
         this.meterRegistry = meterRegistry;
     }
 
-    @Async
     public void getRsuInformation(RsuSnmpCredentials cred) {
         String username = cred.getUsername();
         String password = cred.getPassword();
