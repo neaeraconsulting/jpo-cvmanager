@@ -19,7 +19,6 @@ from wzdx_feed import WzdxFeed
 from rsu_geo_msg_query import RsuGeoData
 from moove_ai_query import MooveAiData
 from iss_scms_status import IssScmsStatus
-from rsu_ssm_srm import RsuSsmSrmData
 from admin_new_rsu import AdminNewRsu
 from admin_rsu import AdminRsu
 from admin_new_intersection import AdminNewIntersection
@@ -71,7 +70,6 @@ if api_environment.ENABLE_RSU_FEATURES:
     api.add_resource(RsuGeoQuery, "/rsu-config-geo-query")
     api.add_resource(RsuGeoData, "/rsu-geo-msg-data")
     api.add_resource(IssScmsStatus, "/iss-scms-status")
-    api.add_resource(RsuSsmSrmData, "/rsu-ssm-srm-data")
     api.add_resource(AdminNewRsu, "/admin-new-rsu")
     api.add_resource(AdminRsu, "/admin-rsu")
     api.add_resource(RSUErrorSummaryResource, "/rsu-error-summary")

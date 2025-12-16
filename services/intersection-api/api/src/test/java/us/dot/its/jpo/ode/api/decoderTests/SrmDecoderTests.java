@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.srm.ProcessedSrm;
 import us.dot.its.jpo.ode.api.asn1.SrmDecoder;
 import us.dot.its.jpo.ode.model.OdeMessageFrameData;
 
@@ -34,6 +36,7 @@ public class SrmDecoderTests {
 
     private String odeSrmDecodedXmlReference = "";
     private String odeSrmDecodedJsonReference = "";
+    private String processedSrmReference = "";
 
     ObjectMapper objectMapper;
 
@@ -50,6 +53,11 @@ public class SrmDecoderTests {
             odeSrmDecodedJsonReference = new String(
                     Files.readAllBytes(Paths
                             .get("src/test/resources/json/srm/Ode.ReferenceSrmJson.json")))
+                    .replaceAll("\n", "").replaceAll(" ", "");
+
+            processedSrmReference = new String(
+                    Files.readAllBytes(Paths
+                            .get("src/test/resources/json/srm/GJC.ReferenceProcessedSrmJson.json")))
                     .replaceAll("\n", "").replaceAll(" ", "");
 
         } catch (IOException e) {
@@ -72,6 +80,29 @@ public class SrmDecoderTests {
                     .setSerialId(srm.getMetadata().getSerialId().setStreamId("44a6d71c-8af1-4f45-848c-10bd7f919be8"));
 
             assertThatJson(odeSrmDecodedJsonReference).isEqualTo(srm.toJson());
+        } catch (JsonProcessingException e) {
+            assertEquals(true, false);
+        }
+    }
+
+    /**
+     * Test to verify Conversion from a OdeMessageFrame object to a ProcessedSrm
+     * Object
+     */
+    @Test
+    public void testConvertMessageFrameToProcessedSrm() {
+
+        try {
+            OdeMessageFrameData srmMessageFrame = objectMapper.readValue(odeSrmDecodedJsonReference,
+                    OdeMessageFrameData.class);
+
+            srmMessageFrame.getMetadata().setOdeReceivedAt("2025-08-29T16:09:34.416Z");
+
+            ProcessedSrm srm = srmDecoder.convertMessageFrameToProcessedSrm(srmMessageFrame);
+
+            srm.getProperties().setOdeReceivedAt(ZonedDateTime.parse("2025-08-29T16:09:34.416Z"));
+
+            assertEquals(srm.toString().replaceAll("\n", "").replaceAll(" ", ""), processedSrmReference);
         } catch (JsonProcessingException e) {
             assertEquals(true, false);
         }

@@ -11,12 +11,16 @@ interface CustomTableProps {
 
 export const CustomTable = (props: CustomTableProps) => {
   const theme = useTheme()
-  const { headers, data, ...rest } = props
+  const { headers, data, maxHeight = 400, ...rest } = props
   let rowKey = 0
   let cellKey = 0
 
   return (
-    <TableContainer component={Paper} sx={{ pt: 0, pb: 0, px: 0, width: 'auto' }} elevation={0}>
+    <TableContainer
+      component={Paper}
+      sx={{ pt: 0, pb: 0, px: 0, width: 'auto', overflow: 'auto', maxHeight }}
+      elevation={0}
+    >
       <Table
         stickyHeader
         size="small"
@@ -48,7 +52,7 @@ export const CustomTable = (props: CustomTableProps) => {
           {data.map((row) => (
             <TableRow hover key={++rowKey}>
               {row.map((cell) => (
-                <TableCell component="th" scope="row" key={++cellKey} sx={{ minWidth: 0 }}>
+                <TableCell component="th" scope="row" key={++cellKey} sx={{ minWidth: 0, whiteSpace: 'pre' }}>
                   <>{cell}</>
                 </TableCell>
               ))}
