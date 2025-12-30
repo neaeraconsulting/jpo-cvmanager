@@ -272,7 +272,7 @@ class AdminUserPatchSchema(Schema):
 class AdminUser(Resource):
     options_headers = {
         "Access-Control-Allow-Origin": api_environment.CORS_DOMAIN,
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,Organization",
         "Access-Control-Allow-Methods": "GET,PATCH,DELETE",
         "Access-Control-Max-Age": "3600",
     }
