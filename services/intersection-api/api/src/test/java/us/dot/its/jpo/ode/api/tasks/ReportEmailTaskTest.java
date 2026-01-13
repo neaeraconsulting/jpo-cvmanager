@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import us.dot.its.jpo.ode.api.services.EmailService;
 import us.dot.its.jpo.ode.api.accessors.reports.ReportRepository;
+import us.dot.its.jpo.ode.api.models.ReportDocument;
 import us.dot.its.jpo.ode.api.accessors.map.ProcessedMapRepository;
 
 import java.time.Instant;
