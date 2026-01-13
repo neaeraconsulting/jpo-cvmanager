@@ -37,23 +37,6 @@ class ReportEmailTaskTest {
     }
 
     @Test
-    void testSendWeeklyReportEmails() {
-        // Arrange
-        List<String> mockUsers = List.of("user1@example.com", "user2@example.com");
-        when(emailService.getUsersForConflictMonitorReports()).thenReturn(mockUsers);
-
-        List<Integer> mockIntersectionIds = List.of(1, 2, 3);
-        when(emailService.getAllowedIntersectionIdsByEmail(anyString())).thenReturn(mockIntersectionIds);
-
-        // Act
-        reportEmailTask.sendWeeklyReportEmails();
-
-        // Assert
-        verify(emailService, times(2)).getAllowedIntersectionIdsByEmail(anyString());
-        verify(emailService, times(2)).sendSimpleMessage(anyString(), anyString(), anyString());
-    }
-
-    @Test
     void testSendEmailsForReportsInRange() {
         // Arrange
         Instant startTime = Instant.now().minusSeconds(604800); // 1 week ago
@@ -65,12 +48,45 @@ class ReportEmailTaskTest {
         List<Integer> mockIntersectionIds = List.of(1);
         when(emailService.getAllowedIntersectionIdsByEmail("user1@example.com")).thenReturn(mockIntersectionIds);
 
+        List<ReportDocument> mockReports = List.of(new ReportDocument());
+        when(reportRepo.findAll(
+                eq(null),
+                eq(1),
+                eq(startTime.toEpochMilli()),
+                eq(stopTime.toEpochMilli()),
+                eq(true))).thenReturn(mockReports);
+
         // Act
         reportEmailTask.sendEmailsForReportsInRange(startTime, stopTime);
 
         // Assert
         verify(emailService, times(1)).getAllowedIntersectionIdsByEmail("user1@example.com");
         verify(emailService, times(1)).sendSimpleMessage(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void testSendWeeklyReportEmails() {
+        // Arrange
+        List<String> mockUsers = List.of("user1@example.com", "user2@example.com");
+        when(emailService.getUsersForConflictMonitorReports()).thenReturn(mockUsers);
+
+        List<Integer> mockIntersectionIds = List.of(1);
+        when(emailService.getAllowedIntersectionIdsByEmail(anyString())).thenReturn(mockIntersectionIds);
+
+        List<ReportDocument> mockReports = List.of(new ReportDocument());
+        when(reportRepo.findAll(
+                eq(null),
+                eq(1),
+                anyLong(),
+                anyLong(),
+                eq(true))).thenReturn(mockReports);
+
+        // Act
+        reportEmailTask.sendWeeklyReportEmails();
+
+        // Assert
+        verify(emailService, times(2)).getAllowedIntersectionIdsByEmail(anyString());
+        verify(emailService, times(2)).sendSimpleMessage(anyString(), anyString(), anyString());
     }
 
     @Test
