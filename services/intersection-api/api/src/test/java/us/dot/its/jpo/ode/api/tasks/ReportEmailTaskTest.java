@@ -93,18 +93,19 @@ class ReportEmailTaskTest {
         // Arrange
         Instant startTime = Instant.now().minusSeconds(604800); // 1 week ago
         Instant stopTime = Instant.now();
-        Map<Integer, String> reportCache = new HashMap<>();
+        Map<Integer, ReportDocument> reportCache = new HashMap<>();
 
         List<Integer> intersectionIds = List.of(1, 2);
 
         // Mock the repository method
+        ReportDocument mockReport = new ReportDocument();
         when(reportRepo.findByIntersectionAndExactTime(
                 eq(null),
                 anyInt(),
                 eq(startTime.toEpochMilli()),
                 eq(stopTime.toEpochMilli()),
                 eq(true)))
-                .thenReturn(new ReportDocument());
+                .thenReturn(mockReport);
 
         // Act
         List<Integer> result = reportEmailTask.fetchReportsForIntersections(intersectionIds, startTime, stopTime,
@@ -128,12 +129,18 @@ class ReportEmailTaskTest {
         assertTrue(startTimeCaptor.getAllValues().stream().allMatch(time -> time.equals(startTime.toEpochMilli())));
         assertTrue(endTimeCaptor.getAllValues().stream().allMatch(time -> time.equals(stopTime.toEpochMilli())));
 
+        // Verify the cache contains the mock report
+        for (Integer intersectionId : intersectionIds) {
+            assertEquals(mockReport, reportCache.get(intersectionId));
+        }
     }
 
     @Test
     void testConstructEmailBody() {
         // Arrange
-        Map<Integer, String> reportCache = Map.of(1, "Report 1", 2, "Report 2");
+        ReportDocument report1 = new ReportDocument();
+        ReportDocument report2 = new ReportDocument();
+        Map<Integer, ReportDocument> reportCache = Map.of(1, report1, 2, report2);
         List<Integer> validIntersectionIds = List.of(1, 2);
         Instant startTime = Instant.now().minusSeconds(604800); // 1 week ago
         Instant stopTime = Instant.now();
@@ -142,7 +149,7 @@ class ReportEmailTaskTest {
         String emailBody = reportEmailTask.constructEmailBody(validIntersectionIds, reportCache, startTime, stopTime);
 
         // Assert
-        assertTrue(emailBody.contains("Report 1"));
-        assertTrue(emailBody.contains("Report 2"));
+        assertTrue(emailBody.contains("intersectionId"));
+        assertTrue(emailBody.contains("report"));
     }
 }
