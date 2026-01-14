@@ -16,6 +16,6 @@ public interface ReportRepository extends DataLoader<ReportDocument> {
     Page<ReportDocument> find(String reportName, Integer intersectionID, Long startTime, Long endTime,
             boolean includeReportContents, Pageable pageable);
 
-    List<ReportDocument> findAll(String reportName, Integer intersectionID, Long startTime, Long endTime,
-            boolean includeReportContents);
+    ReportDocument findByIntersectionAndExactTime(String reportName, Integer intersectionID, Long startTime,
+            Long endTime, boolean includeReportContents);
 }

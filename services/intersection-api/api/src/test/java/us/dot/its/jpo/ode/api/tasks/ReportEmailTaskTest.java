@@ -49,13 +49,12 @@ class ReportEmailTaskTest {
         List<Integer> mockIntersectionIds = List.of(1);
         when(emailService.getAllowedIntersectionIdsByEmail("user1@example.com")).thenReturn(mockIntersectionIds);
 
-        List<ReportDocument> mockReports = List.of(new ReportDocument());
-        when(reportRepo.findAll(
+        when(reportRepo.findByIntersectionAndExactTime(
                 eq(null),
                 eq(1),
                 eq(startTime.toEpochMilli()),
                 eq(stopTime.toEpochMilli()),
-                eq(true))).thenReturn(mockReports);
+                eq(true))).thenReturn(new ReportDocument());
 
         // Act
         reportEmailTask.sendEmailsForReportsInRange(startTime, stopTime);
@@ -74,13 +73,12 @@ class ReportEmailTaskTest {
         List<Integer> mockIntersectionIds = List.of(1);
         when(emailService.getAllowedIntersectionIdsByEmail(anyString())).thenReturn(mockIntersectionIds);
 
-        List<ReportDocument> mockReports = List.of(new ReportDocument());
-        when(reportRepo.findAll(
+        when(reportRepo.findByIntersectionAndExactTime(
                 eq(null),
                 eq(1),
                 anyLong(),
                 anyLong(),
-                eq(true))).thenReturn(mockReports);
+                eq(true))).thenReturn(new ReportDocument());
 
         // Act
         reportEmailTask.sendWeeklyReportEmails();
@@ -99,6 +97,15 @@ class ReportEmailTaskTest {
 
         List<Integer> intersectionIds = List.of(1, 2);
 
+        // Mock the repository method
+        when(reportRepo.findByIntersectionAndExactTime(
+                eq(null),
+                anyInt(),
+                eq(startTime.toEpochMilli()),
+                eq(stopTime.toEpochMilli()),
+                eq(true)))
+                .thenReturn(new ReportDocument());
+
         // Act
         List<Integer> result = reportEmailTask.fetchReportsForIntersections(intersectionIds, startTime, stopTime,
                 reportCache);
@@ -109,13 +116,12 @@ class ReportEmailTaskTest {
         ArgumentCaptor<Long> startTimeCaptor = ArgumentCaptor.forClass(Long.class);
         ArgumentCaptor<Long> endTimeCaptor = ArgumentCaptor.forClass(Long.class);
 
-        verify(reportRepo, times(intersectionIds.size())).findAll(
-                eq(null), // Assuming reportName is null in this case
+        verify(reportRepo, times(intersectionIds.size())).findByIntersectionAndExactTime(
+                eq(null),
                 intersectionIdCaptor.capture(),
                 startTimeCaptor.capture(),
                 endTimeCaptor.capture(),
-                eq(true) // Assuming includeReportContents is true
-        );
+                eq(true));
 
         // Verify captured arguments
         assertEquals(intersectionIds, intersectionIdCaptor.getAllValues());

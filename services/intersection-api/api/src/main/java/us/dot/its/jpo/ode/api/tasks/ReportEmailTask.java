@@ -52,7 +52,7 @@ public class ReportEmailTask {
         log.info("Fetching users subscribed to Conflict Monitor Reports...");
         List<String> users = emailService.getUsersForConflictMonitorReports();
 
-        Map<Integer, String> reportCache = new HashMap<>();
+        Map<Integer, ReportDocument> reportCache = new HashMap<>();
 
         for (String user : users) {
             log.info("Processing user: {}", user);
@@ -76,7 +76,7 @@ public class ReportEmailTask {
     }
 
     List<Integer> fetchReportsForIntersections(List<Integer> intersectionIds, Instant startTime,
-            Instant stopTime, Map<Integer, String> reportCache) {
+            Instant stopTime, Map<Integer, ReportDocument> reportCache) {
         long startRange = startTime.toEpochMilli();
         long endRange = stopTime.toEpochMilli();
 
@@ -88,17 +88,15 @@ public class ReportEmailTask {
                 continue;
             }
 
-            List<ReportDocument> reports = reportRepo.findAll(
+            ReportDocument report = reportRepo.findByIntersectionAndExactTime(
                     null,
                     intersectionId,
                     startRange,
                     endRange,
                     true);
 
-            if (!reports.isEmpty()) {
-                ReportDocument report = reports.get(0);
-                String serializedReport = serializeReportToJson(report);
-                reportCache.put(intersectionId, serializedReport);
+            if (report != null) {
+                reportCache.put(intersectionId, report);
                 processedIntersectionIds.add(intersectionId);
             }
         }
@@ -106,25 +104,28 @@ public class ReportEmailTask {
         return processedIntersectionIds;
     }
 
-    String constructEmailBody(List<Integer> validIntersectionIds, Map<Integer, String> reportCache,
+    String constructEmailBody(List<Integer> validIntersectionIds, Map<Integer, ReportDocument> reportCache,
             Instant startTime, Instant stopTime) {
-        StringBuilder emailBody = new StringBuilder();
-
-        String startDate = ZonedDateTime.ofInstant(startTime, ZoneOffset.UTC).toLocalDate().toString();
-        String endDate = ZonedDateTime.ofInstant(stopTime, ZoneOffset.UTC).toLocalDate().toString();
-        emailBody.append(
-                String.format("The following Conflict Monitor Reports were generated for the week of %s to %s:\n\n",
-                        startDate, endDate));
+        List<Map<String, Object>> reports = new ArrayList<>();
 
         for (Integer intersectionId : validIntersectionIds) {
-            String serializedReport = reportCache.get(intersectionId);
+            ReportDocument report = reportCache.get(intersectionId);
 
-            if (serializedReport != null) {
-                emailBody.append(String.format("Intersection %d:\n%s\n\n", intersectionId, serializedReport));
+            if (report != null) {
+                Map<String, Object> reportEntry = new HashMap<>();
+                reportEntry.put("intersectionId", intersectionId);
+                reportEntry.put("report", serializeReportToJson(report));
+                reports.add(reportEntry);
             }
         }
 
-        return emailBody.toString();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(reports);
+        } catch (JsonProcessingException e) {
+            log.error("Error serializing reports to JSON array", e);
+            return "[]"; // Return an empty JSON array in case of error
+        }
     }
 
     private String serializeReportToJson(ReportDocument report) {
