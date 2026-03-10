@@ -479,8 +479,6 @@ git config --global core.autocrlf false
    This indicates an issue within the cvmanager_api service, see the docker logs for more information. Common issues include:
    i. Unable to connect to PostgreSQL server (see postgres logs)
    ii. Keycloak authentication error (see keycloak logs)
-   <<<<<<< HEAD
-   =======
 2. The webapp needs to be re-build after each environment variable change
    This is due to the fact that environment variables are injected into the Docker image at _BUILD_ time, not runtime.
 
@@ -497,8 +495,6 @@ docker compose up --build -d cvmanager_webapp
 docker compose down -v
 docker compose up -d
 ```
-
-> > > > > > > cdot_upstream/develop
 
 ## License Information
 
