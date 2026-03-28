@@ -129,4 +129,35 @@ public class ReportRepositoryImpl
     public void add(ReportDocument item) {
         mongoTemplate.insert(item, collectionName);
     }
+
+    public ReportDocument findByIntersectionAndExactTime(
+            String reportName,
+            Integer intersectionID,
+            Long startTime,
+            Long endTime,
+            boolean includeReportContents) {
+        if (intersectionID == null) {
+            throw new IllegalArgumentException("intersectionID must not be null");
+        }
+
+        Criteria criteria = new IntersectionCriteria()
+                .whereOptional(REPORT_NAME_FIELD, reportName);
+
+        // Match exact start and stop times
+        criteria.and("reportStartTime").is(startTime);
+        criteria.and("reportStopTime").is(endTime);
+        criteria.and(INTERSECTION_ID_FIELD).is(intersectionID);
+
+        Sort sort = Sort.by(Sort.Direction.DESC, DATE_FIELD);
+        List<String> excludedFields = new ArrayList<>();
+        if (!includeReportContents) {
+            excludedFields.add("reportContents");
+        }
+        Query query = Query.query(criteria).with(sort);
+        // Exclude fields if necessary
+        if (!excludedFields.isEmpty()) {
+            query.fields().exclude(excludedFields.toArray(new String[0]));
+        }
+        return mongoTemplate.findOne(query, ReportDocument.class, collectionName);
+    }
 }
