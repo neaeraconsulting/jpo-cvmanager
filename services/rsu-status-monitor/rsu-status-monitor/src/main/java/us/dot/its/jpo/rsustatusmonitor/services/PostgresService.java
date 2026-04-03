@@ -27,7 +27,7 @@ public class PostgresService {
             "LEFT JOIN Intersections i ON ri.intersection_id = i.intersection_id";
 
     // Finds RSU SNMP credentials for a specific RSU by IPv4 address
-    private final String findRsuSnmpCredentialsByIp = findRsuSnmpCredentials + " WHERE rsu.ipv4_address = :ipAddress";
+    private final String findRsuSnmpCredentialsByIp = findRsuSnmpCredentials + " WHERE rsu.ipv4_address = \"%s\"";
 
     public List<RsuSnmpCredentials> getRsusWithCredentials() {
         TypedQuery<RsuSnmpCredentials> query = entityManager.createQuery(findRsuSnmpCredentials,
@@ -36,9 +36,9 @@ public class PostgresService {
     }
 
     public Optional<RsuSnmpCredentials> getRsuCredentialsByIp(String ipAddress) {
-        TypedQuery<RsuSnmpCredentials> query = entityManager.createQuery(findRsuSnmpCredentialsByIp,
+        TypedQuery<RsuSnmpCredentials> query = entityManager.createQuery(
+                String.format(findRsuSnmpCredentialsByIp, ipAddress),
                 RsuSnmpCredentials.class);
-        query.setParameter("ipAddress", ipAddress);
         query.setMaxResults(1);
         return query.getResultList().stream().findFirst();
     }

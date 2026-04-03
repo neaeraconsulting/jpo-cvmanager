@@ -162,10 +162,14 @@ public class SNMPService {
         snmp.close();
         if (response == null || response.getResponse() == null) {
             log.warn("Received Null Response from RSU unit " + ipAddress);
+            throw new RuntimeException("Error while setting value on RSU unit " + ipAddress + ". Error: " +
+                    response.getResponse().getErrorStatusText());
         }
 
         if (response.getResponse().getErrorStatus() != PDU.noError) {
             log.warn("Error while setting value on RSU unit " + ipAddress);
+            throw new RuntimeException("Error while setting value on RSU unit " + ipAddress + ". Error: " +
+                    response.getResponse().getErrorStatusText());
         }
     }
 

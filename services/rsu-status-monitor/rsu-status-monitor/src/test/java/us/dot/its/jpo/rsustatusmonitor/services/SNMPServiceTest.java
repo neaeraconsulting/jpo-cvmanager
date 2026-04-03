@@ -3,6 +3,9 @@ package us.dot.its.jpo.rsustatusmonitor.services;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.management.RuntimeErrorException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -374,9 +377,10 @@ public class SNMPServiceTest {
             securityProtocolsMock.when(SecurityProtocols::getInstance).thenReturn(mockSecurityProtocols);
             mpv3Mock.when(MPv3::createLocalEngineID).thenReturn(new byte[] { 1, 2, 3, 4, 5 });
 
-            assertDoesNotThrow(() -> {
+            assertThrows(RuntimeException.class, () -> {
                 service.setSnmpV3Value(ipAddress, username, authPass, oid, intValue);
             });
+
         }
     }
 
@@ -413,9 +417,10 @@ public class SNMPServiceTest {
             securityProtocolsMock.when(SecurityProtocols::getInstance).thenReturn(mockSecurityProtocols);
             mpv3Mock.when(MPv3::createLocalEngineID).thenReturn(new byte[] { 1, 2, 3, 4, 5 });
 
-            service.setSnmpV3Values(ipAddress, username, authPass, oidValuePairs);
+            assertDoesNotThrow(() -> {
+                service.setSnmpV3Values(ipAddress, username, authPass, oidValuePairs);
+            });
 
-            assertTrue(true);
         }
     }
 

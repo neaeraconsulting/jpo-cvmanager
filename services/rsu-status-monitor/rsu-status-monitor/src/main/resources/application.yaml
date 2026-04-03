@@ -17,6 +17,10 @@ logging:
     us.dot.its.jpo.rsustatusmonitor: ${LOGGING_LEVEL:INFO}
     org.apache.kafka: WARN
 
+# REST API server
+server:
+  port: 8085
+
 # microservice actuator
 management:
   endpoints:
