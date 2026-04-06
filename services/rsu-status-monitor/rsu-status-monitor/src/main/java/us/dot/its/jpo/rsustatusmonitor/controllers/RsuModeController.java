@@ -34,16 +34,29 @@ public class RsuModeController {
     @PostMapping("/mode")
     public ResponseEntity<RsuModeResponse> setRsuMode(@RequestBody(required = true) RsuModeRequest request) {
         if (!StringUtils.hasText(request.ipAddress())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "IP address is required.");
+            RsuModeResponse response = new RsuModeResponse("", -1, "failure",
+                    "IP address is required.");
+            return ResponseEntity.badRequest().body(response);
         }
         if (request.mode() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mode is required.");
+            RsuModeResponse response = new RsuModeResponse(request.ipAddress(), request.mode(), "failure",
+                    "Mode is Required");
+            return ResponseEntity.badRequest().body(response);
+        } else {
+            int mode = request.mode();
+            if (mode != 2 && mode != 4 && mode != 16) {
+                RsuModeResponse response = new RsuModeResponse(request.ipAddress(), request.mode(), "failure",
+                        "Invalid mode value. Mode must be set to one of the following 2 (Standby) 4 (Operate) or 16 (Off).");
+                return ResponseEntity.badRequest().body(response);
+            }
         }
 
         try {
             return ResponseEntity.ok(rsuModeService.setRsuMode(request.ipAddress(), request.mode()));
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            RsuModeResponse response = new RsuModeResponse(request.ipAddress(), request.mode(), "failure",
+                    e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         } catch (UnsupportedOperationException e) {
