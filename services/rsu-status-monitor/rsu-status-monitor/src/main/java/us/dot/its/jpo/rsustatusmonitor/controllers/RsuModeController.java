@@ -39,7 +39,7 @@ public class RsuModeController {
             return ResponseEntity.badRequest().body(response);
         }
         if (request.mode() == null) {
-            RsuModeResponse response = new RsuModeResponse(request.ipAddress(), request.mode(), "failure",
+            RsuModeResponse response = new RsuModeResponse(request.ipAddress(), null, "failure",
                     "Mode is Required");
             return ResponseEntity.badRequest().body(response);
         } else {

@@ -72,7 +72,7 @@ public class RsuQueryService {
 
         state.uptime = getIntOID(ip, username, password, encPass, OIDMap.oids.get("rsuTimeSincePowerOn"));
         state.temperature = getIntOID(ip, username, password, encPass, OIDMap.oids.get("rsuIntTemp"));
-        state.mode = getIntOID(ip, username, password, encPass, OIDMap.oids.get("rsuModeStatus"));
+        state.mode = getIntOID(ip, username, password, encPass, OIDMap.oids.get("rsuMode"));
 
         RsuIntersectionKey key = new RsuIntersectionKey();
         key.setIntersectionId(Integer.parseInt(intersectionId));

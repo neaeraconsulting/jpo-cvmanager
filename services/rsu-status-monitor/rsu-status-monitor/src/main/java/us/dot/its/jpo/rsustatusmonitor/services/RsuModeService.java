@@ -65,7 +65,7 @@ public class RsuModeService {
 
         validateCredentials(credentials);
 
-        OID rsuModeStatusOid = OIDMap.oids.get("rsuModeStatus");
+        OID rsuModeStatusOid = OIDMap.oids.get("rsuMode");
         if (rsuModeStatusOid == null) {
             throw new IllegalStateException("RSU mode status OID is not configured.");
         }

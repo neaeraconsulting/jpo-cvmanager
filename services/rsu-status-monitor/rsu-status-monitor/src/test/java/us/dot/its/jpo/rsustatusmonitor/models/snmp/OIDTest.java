@@ -8,21 +8,21 @@ public class OIDTest {
 
     @Test
     public void testConstructor() {
-        OID oid = new OID("rsuModeStatus", OID_TYPE.SCALAR, "1.3.6.1.4.1.1.1206.4.2.18.16.3.0");
-        
-        assertEquals("rsuModeStatus", oid.getName());
+        OID oid = new OID("rsuMode", OID_TYPE.SCALAR, ".1.0.15628.4.1.99.0");
+
+        assertEquals("rsuMode", oid.getName());
         assertEquals(OID_TYPE.SCALAR, oid.getType());
-        assertEquals("1.3.6.1.4.1.1.1206.4.2.18.16.3.0", oid.getOid());
+        assertEquals(".1.0.15628.4.1.99.0", oid.getOid());
     }
 
     @Test
     public void testGettersAndSetters() {
         OID oid = new OID("test", OID_TYPE.NODE, "1.2.3.4");
-        
+
         oid.setName("rsuStatus");
         oid.setType(OID_TYPE.TABLE);
         oid.setOid("1.3.6.1.4.1");
-        
+
         assertEquals("rsuStatus", oid.getName());
         assertEquals(OID_TYPE.TABLE, oid.getType());
         assertEquals("1.3.6.1.4.1", oid.getOid());
@@ -33,7 +33,7 @@ public class OIDTest {
         OID oid1 = new OID("test", OID_TYPE.SCALAR, "1.2.3.4");
         OID oid2 = new OID("test", OID_TYPE.SCALAR, "1.2.3.4");
         OID oid3 = new OID("different", OID_TYPE.NODE, "5.6.7.8");
-        
+
         assertEquals(oid1, oid2);
         assertNotEquals(oid1, oid3);
         assertEquals(oid1.hashCode(), oid2.hashCode());
@@ -41,11 +41,11 @@ public class OIDTest {
 
     @Test
     public void testToString() {
-        OID oid = new OID("rsuModeStatus", OID_TYPE.SCALAR, "1.3.6.1.4.1.1.1206.4.2.18.16.3.0");
+        OID oid = new OID("rsuMode", OID_TYPE.SCALAR, ".1.0.15628.4.1.99.0");
         String result = oid.toString();
-        
+
         assertNotNull(result);
-        assertTrue(result.contains("rsuModeStatus"));
+        assertTrue(result.contains("rsuMode"));
     }
 
     @Test

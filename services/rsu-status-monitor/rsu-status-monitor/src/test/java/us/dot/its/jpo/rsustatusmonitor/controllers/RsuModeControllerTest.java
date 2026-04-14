@@ -63,7 +63,9 @@ public class RsuModeControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new ModeRequestBody("192.168.1.100", null))))
                                 .andExpect(status().isBadRequest())
-                                .andExpect(status().reason("Mode is required."));
+                                .andExpect(jsonPath("$.ipAddress").value("192.168.1.100"))
+                                .andExpect(jsonPath("$.status").value("failure"))
+                                .andExpect(jsonPath("$.message").value("Mode is Required"));
         }
 
         @Test

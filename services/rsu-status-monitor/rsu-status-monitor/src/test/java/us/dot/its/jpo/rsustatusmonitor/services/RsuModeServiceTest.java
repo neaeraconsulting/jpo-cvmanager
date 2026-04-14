@@ -82,7 +82,7 @@ public class RsuModeServiceTest {
                 "testUser",
                 "authPass",
                 "privPass",
-                OIDMap.oids.get("rsuModeStatus").getOid())).thenReturn(new Integer32(3));
+                OIDMap.oids.get("rsuMode").getOid())).thenReturn(new Integer32(3));
 
         RsuModeResponse response = service.getCurrentRsuStatus("192.168.1.100");
 
@@ -98,7 +98,7 @@ public class RsuModeServiceTest {
                 "testUser",
                 "authPass",
                 "privPass",
-                OIDMap.oids.get("rsuModeStatus").getOid())).thenReturn(null);
+                OIDMap.oids.get("rsuMode").getOid())).thenReturn(null);
 
         assertThrows(IllegalStateException.class, () -> service.getCurrentRsuStatus("192.168.1.100"));
     }
