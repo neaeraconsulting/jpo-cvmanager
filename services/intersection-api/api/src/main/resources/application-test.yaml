@@ -84,6 +84,7 @@ enable:
   report: false
 
 cmServerURL: ${CM_SERVER_URL:http://localhost:8082}
+rsuStatusMonitorURL: ${RSU_STATUS_MONITOR_URL:http://localhost:8086}
 mongoTimeoutMs: ${CM_MONGO_TIMEOUT_MS:5000}
 cors: '*'
 maximumResponseSize: ${CM_MAXIMUM_RESPONSE_SIZE:10000}
