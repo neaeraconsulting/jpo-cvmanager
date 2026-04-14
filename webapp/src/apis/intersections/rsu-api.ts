@@ -10,6 +10,13 @@ export type RsuState = {
   mode: number
 }
 
+export type RsuModeResponse = {
+  ipAddress: string
+  mode: number
+  status: string
+  message: string
+}
+
 class RsuApi {
   // Fetch historical RSU states for a given RSU IP and time range
   async getHistoricalRsuStatus({
@@ -95,6 +102,56 @@ class RsuApi {
       queryParams,
       abortController,
       failureMessage: 'Failed to fetch aggregated RSU status',
+      tag: 'rsu',
+    })
+
+    return response
+  }
+
+  async setRsuMode({
+    token,
+    rsuIp,
+    mode,
+    abortController,
+  }: {
+    token: string
+    rsuIp: string
+    mode: number
+    abortController?: AbortController
+  }): Promise<RsuModeResponse | undefined> {
+    const response = await authApiHelper.invokeApi({
+      path: `/data/rsu-status/mode`,
+      method: 'POST',
+      token,
+      body: {
+        ipAddress: rsuIp,
+        mode,
+      },
+      abortController,
+      failureMessage: 'Failed to set RSU mode',
+      tag: 'rsu',
+    })
+
+    return response
+  }
+
+  async getCurrentRsuModeStatus({
+    token,
+    rsuIp,
+    abortController,
+  }: {
+    token: string
+    rsuIp: string
+    abortController?: AbortController
+  }): Promise<RsuModeResponse | undefined> {
+    const response = await authApiHelper.invokeApi({
+      path: `/data/rsu-status/mode/status`,
+      token,
+      queryParams: {
+        rsuIp,
+      },
+      abortController,
+      failureMessage: 'Failed to fetch RSU mode status',
       tag: 'rsu',
     })
 

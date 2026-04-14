@@ -3,6 +3,7 @@ import SnmpwalkMenu from '../../components/SnmpwalkMenu'
 import SnmpsetMenu from '../../components/SnmpsetMenu'
 import RsuRebootMenu from '../../components/RsuRebootMenu'
 import RsuFirmwareMenu from '../../components/RsuFirmwareMenu'
+import RsuModeMenu from '../../components/RsuModeMenu'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -12,6 +13,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Typography from '@mui/material/Typography'
 import { selectSelectedRsu, selectRsu } from '../../generalSlices/rsuSlice'
 import { clearConfig, selectConfigList } from '../../generalSlices/configSlice'
+import { selectToken } from '../../generalSlices/userSlice'
 import '../../components/css/SnmpwalkMenu.css'
 import { RootState } from '../../store'
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit'
@@ -20,7 +22,6 @@ import { RoomOutlined } from '@mui/icons-material'
 import { headerTabHeight } from '../../styles'
 import { SideBarHeader } from '../../styles/components/SideBarHeader'
 import { CustomTable } from '../intersections/map/custom-table'
-import EnvironmentVars from '../../EnvironmentVars'
 
 const ConfigMenu = ({ children }) => {
   return <Box>{children}</Box>
@@ -36,6 +37,7 @@ const ConfigureRSU = () => {
   }
   const selectedRsu = useSelector(selectSelectedRsu)
   const selectedConfigList = useSelector(selectConfigList)
+  const token = useSelector(selectToken)
 
   return (
     <Paper sx={{ lineHeight: 1.1, backgroundColor: theme.palette.background.paper }}>
@@ -148,6 +150,21 @@ const ConfigureRSU = () => {
             <AccordionDetails>
               <ConfigMenu>
                 <RsuFirmwareMenu type="single_rsu" rsuIpList={[selectedRsu.properties.ipv4_address]} />
+              </ConfigMenu>
+            </AccordionDetails>
+          </Accordion>
+          <Divider />
+          <Accordion
+            elevation={0}
+            expanded={expanded === 'selected-rsu-status'}
+            onChange={handleChange('selected-rsu-status')}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel3bh-content" id="panel3bh-header">
+              <Typography>Status</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ConfigMenu>
+                <RsuModeMenu rsuIp={selectedRsu.properties.ipv4_address} token={token} />
               </ConfigMenu>
             </AccordionDetails>
           </Accordion>

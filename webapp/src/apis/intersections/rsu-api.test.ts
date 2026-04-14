@@ -174,3 +174,51 @@ it('Test getAggregatedRsuStatus with abort controller', async () => {
 
   expect(fetchMock.mock.calls[0][1].signal).toBe(abortController.signal)
 })
+
+it('Test setRsuMode', async () => {
+  const expectedResponse = {
+    ipAddress: '10.0.0.1',
+    mode: 4,
+    status: 'success',
+    message: 'RSU mode updated successfully.',
+  }
+
+  fetchMock.mockResponseOnce(JSON.stringify(expectedResponse))
+
+  const result = await RsuApi.setRsuMode({
+    token: 'testToken',
+    rsuIp: '10.0.0.1',
+    mode: 4,
+  })
+
+  expect(result).toEqual(expectedResponse)
+  expect(fetchMock.mock.calls[0][0]).toContain('rsu-status/mode')
+  expect(fetchMock.mock.calls[0][1].method).toBe('POST')
+  expect(fetchMock.mock.calls[0][1].headers).toStrictEqual({
+    Authorization: 'Bearer testToken',
+    'Content-Type': 'application/json',
+  })
+  expect(fetchMock.mock.calls[0][1].body).toEqual(JSON.stringify({ ipAddress: '10.0.0.1', mode: 4 }))
+})
+
+it('Test getCurrentRsuModeStatus', async () => {
+  const expectedResponse = {
+    ipAddress: '10.0.0.1',
+    mode: 2,
+    status: 'success',
+    message: 'RSU status retrieved successfully.',
+  }
+
+  fetchMock.mockResponseOnce(JSON.stringify(expectedResponse))
+
+  const result = await RsuApi.getCurrentRsuModeStatus({
+    token: 'testToken',
+    rsuIp: '10.0.0.1',
+  })
+
+  expect(result).toEqual(expectedResponse)
+  expect(fetchMock.mock.calls[0][0]).toContain('rsu-status/mode/status')
+  expect(fetchMock.mock.calls[0][0]).toContain('rsuIp=10.0.0.1')
+  expect(fetchMock.mock.calls[0][1].method).toBe('GET')
+  expect(fetchMock.mock.calls[0][1].headers).toStrictEqual({ Authorization: 'Bearer testToken' })
+})
