@@ -17,6 +17,7 @@ import { selectToken } from '../../generalSlices/userSlice'
 import '../../components/css/SnmpwalkMenu.css'
 import { RootState } from '../../store'
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit'
+import EnvironmentVars from '../../EnvironmentVars'
 import CloseIcon from '@mui/icons-material/Close'
 import { RoomOutlined } from '@mui/icons-material'
 import { headerTabHeight } from '../../styles'
@@ -38,6 +39,7 @@ const ConfigureRSU = () => {
   const selectedRsu = useSelector(selectSelectedRsu)
   const selectedConfigList = useSelector(selectConfigList)
   const token = useSelector(selectToken)
+  const isRsuModeMenuEnabled = EnvironmentVars.ENABLE_RSU_MODE_MENU_FEATURE
 
   return (
     <Paper sx={{ lineHeight: 1.1, backgroundColor: theme.palette.background.paper }}>
@@ -154,21 +156,25 @@ const ConfigureRSU = () => {
             </AccordionDetails>
           </Accordion>
           <Divider />
-          <Accordion
-            elevation={0}
-            expanded={expanded === 'selected-rsu-status'}
-            onChange={handleChange('selected-rsu-status')}
-          >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel3bh-content" id="panel3bh-header">
-              <Typography>Status</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <ConfigMenu>
-                <RsuModeMenu rsuIp={selectedRsu.properties.ipv4_address} token={token} />
-              </ConfigMenu>
-            </AccordionDetails>
-          </Accordion>
-          <Divider />
+          {isRsuModeMenuEnabled && (
+            <>
+              <Accordion
+                elevation={0}
+                expanded={expanded === 'selected-rsu-status'}
+                onChange={handleChange('selected-rsu-status')}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel3bh-content" id="panel3bh-header">
+                  <Typography>Status</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ConfigMenu>
+                    <RsuModeMenu rsuIp={selectedRsu.properties.ipv4_address} token={token} />
+                  </ConfigMenu>
+                </AccordionDetails>
+              </Accordion>
+              <Divider />
+            </>
+          )}
           <Accordion
             elevation={0}
             expanded={expanded === 'selected-rsu-reboot'}
