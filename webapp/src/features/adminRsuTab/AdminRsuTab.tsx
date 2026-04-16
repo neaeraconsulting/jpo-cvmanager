@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AdminAddRsu from '../adminAddRsu/AdminAddRsu'
 import AdminEditRsu, { AdminEditRsuFormType } from '../adminEditRsu/AdminEditRsu'
 import AdminTable from '../../components/AdminTable'
@@ -19,6 +19,10 @@ import toast from 'react-hot-toast'
 import { useTheme, Typography } from '@mui/material'
 import { DeleteOutline, ModeEditOutline } from '@mui/icons-material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
+import EnvironmentVars from '../../EnvironmentVars'
+
+import { selectRole, selectSuperUser } from '../../generalSlices/userSlice'
 import {
   useLazyGetAllRsusQuery,
   useDeleteRsuMutation,
@@ -67,47 +71,130 @@ const AdminRsuTab = () => {
   const [historicalRsuData, setHistoricalRsuData] = useState<RsuState[] | null>(null)
 
   const token = useSelector(selectToken)
+  const role = useSelector(selectRole)
+  const isSuperUser = useSelector(selectSuperUser)
+  const isOperatorOrAbove = isSuperUser === true || role === 'operator' || role === 'admin'
+
+  const [rsuModeStatuses, setRsuModeStatuses] = useState<Record<string, number | null>>({})
+
+  const getModeLabel = (mode: number | null): string => {
+    if (mode === 2) return 'Standby'
+    if (mode === 4) return 'Operate'
+    if (mode === 16) return 'Off'
+    if (mode == null) return 'Unknown'
+    return `Unknown (${mode})`
+  }
+
+  const fetchModeStatuses = useCallback(
+    async (ips: string[]) => {
+      if (!token || ips.length === 0) return
+      const results = await Promise.allSettled(ips.map((ip) => RsuApi.getCurrentRsuModeStatus({ token, rsuIp: ip })))
+      setRsuModeStatuses((prev) => {
+        const next = { ...prev }
+        ips.forEach((ip, idx) => {
+          const result = results[idx]
+          if (result.status === 'fulfilled' && result.value?.mode != null) {
+            next[ip] = result.value.mode
+          } else {
+            next[ip] = null
+          }
+        })
+        return next
+      })
+    },
+    [token]
+  )
+
+  const handleToggleMode = useCallback(
+    async (rowData: AdminEditRsuFormType) => {
+      if (!token) return
+      const currentMode = rsuModeStatuses[rowData.ip]
+      const newMode = currentMode === 4 ? 2 : 4
+      const loadingToast = toast.loading(`Toggling RSU mode for ${rowData.ip}...`)
+      try {
+        const response = await RsuApi.setRsuMode({ token, rsuIp: rowData.ip, mode: newMode })
+        if (response?.status?.toLowerCase() === 'success') {
+          toast.success(response.message ?? 'RSU mode toggled successfully.', { id: loadingToast })
+          fetchModeStatuses([rowData.ip])
+        } else {
+          toast.error(response?.message ?? 'Failed to toggle RSU mode.', { id: loadingToast })
+        }
+      } catch (error) {
+        toast.error(`Failed to toggle RSU mode: ${error}`, { id: loadingToast })
+      }
+    },
+    [token, rsuModeStatuses, fetchModeStatuses]
+  )
 
   // const tableData = useSelector(selectTableData)
-  const [columns] = useState([
-    { title: 'Milepost', field: 'milepost', id: 0 },
-    { title: 'IP Address', field: 'ip', id: 1 },
-    { title: 'Primary Route', field: 'primary_route', id: 2 },
-    { title: 'RSU Model', field: 'model', id: 3 },
-    { title: 'Serial Number', field: 'serial_number', id: 4 },
-    {
-      title: 'TIM Deposit',
-      field: 'tim_deposit',
-      id: 5,
-      render: (rowData: any) => (
-        <Typography
-          variant="body2"
-          sx={{
-            color: rowData.tim_deposit ? theme.palette.success.light : theme.palette.error.light,
-            fontWeight: 'bold',
-          }}
-        >
-          {rowData.tim_deposit ? 'Enabled' : 'Disabled'}
-        </Typography>
-      ),
-    },
-    {
-      title: 'SNMP Monitoring',
-      field: 'snmp_monitoring',
-      id: 6,
-      render: (rowData: any) => (
-        <Typography
-          variant="body2"
-          sx={{
-            color: rowData.snmp_monitoring ? theme.palette.success.light : theme.palette.error.light,
-            fontWeight: 'bold',
-          }}
-        >
-          {rowData.snmp_monitoring ? 'Enabled' : 'Disabled'}
-        </Typography>
-      ),
-    },
-  ])
+  const columns = useMemo(
+    () => [
+      { title: 'Milepost', field: 'milepost', id: 0 },
+      { title: 'IP Address', field: 'ip', id: 1 },
+      { title: 'Primary Route', field: 'primary_route', id: 2 },
+      { title: 'RSU Model', field: 'model', id: 3 },
+      { title: 'Serial Number', field: 'serial_number', id: 4 },
+      {
+        title: 'TIM Deposit',
+        field: 'tim_deposit',
+        id: 5,
+        render: (rowData: any) => (
+          <Typography
+            variant="body2"
+            sx={{
+              color: rowData.tim_deposit ? theme.palette.success.light : theme.palette.error.light,
+              fontWeight: 'bold',
+            }}
+          >
+            {rowData.tim_deposit ? 'Enabled' : 'Disabled'}
+          </Typography>
+        ),
+      },
+      {
+        title: 'SNMP Monitoring',
+        field: 'snmp_monitoring',
+        id: 6,
+        render: (rowData: any) => (
+          <Typography
+            variant="body2"
+            sx={{
+              color: rowData.snmp_monitoring ? theme.palette.success.light : theme.palette.error.light,
+              fontWeight: 'bold',
+            }}
+          >
+            {rowData.snmp_monitoring ? 'Enabled' : 'Disabled'}
+          </Typography>
+        ),
+      },
+      ...(EnvironmentVars.ENABLE_RSU_MODE_MENU_FEATURE
+        ? [
+            {
+              title: 'RSU Mode',
+              field: 'ip',
+              id: 7,
+              sorting: false,
+              render: (rowData: any) => {
+                const mode = rsuModeStatuses[rowData.ip]
+                if (mode === undefined) return <Typography variant="body2">—</Typography>
+                const color =
+                  mode === 4
+                    ? theme.palette.success.light
+                    : mode === 2
+                      ? theme.palette.warning.light
+                      : theme.palette.text.secondary
+                return (
+                  <Typography variant="body2" sx={{ color, fontWeight: 'bold' }}>
+                    {getModeLabel(mode)}
+                  </Typography>
+                )
+              },
+            },
+          ]
+        : []),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    ],
+    [rsuModeStatuses, theme]
+  )
 
   const handleStatusClick = (rowData: AdminEditRsuFormType) => {
     setSelectedRsuIp(rowData.ip)
@@ -162,6 +249,17 @@ const AdminRsuTab = () => {
   }, [statusDialogOpen, selectedRsuIp, token])
 
   const tableActions: Action<AdminEditRsuFormType>[] = [
+    ...(EnvironmentVars.ENABLE_RSU_MODE_MENU_FEATURE && isOperatorOrAbove
+      ? [
+          {
+            icon: () => <SwapHorizIcon sx={{ color: theme.palette.custom.rowActionIcon }} />,
+            tooltip: 'Toggle RSU Mode',
+            position: 'row' as const,
+            iconProps: { itemType: 'rowAction' },
+            onClick: (_: any, rowData: AdminEditRsuFormType) => handleToggleMode(rowData),
+          },
+        ]
+      : []),
     {
       icon: () => <InfoOutlinedIcon sx={{ color: theme.palette.custom.rowActionIcon }} />,
       tooltip: 'RSU Status',
@@ -288,6 +386,10 @@ const AdminRsuTab = () => {
         // Trigger the query and await the result
         const result = await trigger(params).unwrap()
 
+        if (EnvironmentVars.ENABLE_RSU_MODE_MENU_FEATURE) {
+          fetchModeStatuses((result.content || []).map((r: any) => r.ip))
+        }
+
         return {
           data: result.content || [],
           page: params.page,
@@ -305,7 +407,7 @@ const AdminRsuTab = () => {
         setIsRefreshing(false)
       }
     },
-    [trigger, organization]
+    [trigger, organization, fetchModeStatuses]
   )
 
   const onEdit = (row: AdminEditRsuFormType) => {
