@@ -141,7 +141,7 @@ This application has the ability to disable certain features based on environmen
 - VITE_ENABLE_RSU_FEATURES: if 'false', disable all RSU-specific features, including map, RSU data, RSU configuration, and RSU organization linking.
 - VITE_ENABLE_INTERSECTION_FEATURES: if 'false', disable all intersection-specific features, including intersection map, intersection dashboard, and intersection admin pages.
 - VITE_ENABLE_WZDX_FEATURES: if 'false', disable all wzdx-specific features, including WZDx data on the main map.
-- VITE_ENABLE_RSU_MODE_MENU_FEATURE: if 'false', hide the RSU Status/Mode menu in Configure RSU.
+- VITE_ENABLE_RSU_MODE_MENU_FEATURES: if 'false', hide the RSU Status/Mode menu in Configure RSU.
 
 These variables apply to API calls, by returning empty data if the feature is disabled.
 To aid in applying these features visually, components were created to handle the conditional rendering of these features. These components are:

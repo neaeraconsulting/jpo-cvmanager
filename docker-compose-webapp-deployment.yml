@@ -19,6 +19,7 @@ services:
         ENABLE_RSU_FEATURES: ${ENABLE_RSU_FEATURES:-True}
         ENABLE_INTERSECTION_FEATURES: ${ENABLE_INTERSECTION_FEATURES:-True}
         ENABLE_WZDX_FEATURES: ${ENABLE_WZDX_FEATURES:-True}
+        ENABLE_RSU_STATUS_FEATURES: ${ENABLE_RSU_STATUS_FEATURES:-False}
     image: jpo_cvmanager_webapp:latest
     restart: always
     logging:
