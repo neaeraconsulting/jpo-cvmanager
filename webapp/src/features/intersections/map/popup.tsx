@@ -1,10 +1,20 @@
-import React from 'react'
 import { Popup } from 'react-map-gl'
 
 import { Box, Typography } from '@mui/material'
 import { CustomTable } from './custom-table'
+import AtspmComparison from './atspm-comparison'
+import { useSelector } from 'react-redux'
+import { selectToken } from '../../../generalSlices/userSlice'
+import { selectQueryParams } from './map-slice'
 
-export const getSelectedLayerPopupContent = (feature: any) => {
+export const getSelectedLayerPopupContent = (
+  feature: any,
+  selectedFeature: any,
+  token?: string,
+  intersectionId?: number,
+  startTime?: Date,
+  endTime?: Date
+) => {
   switch (feature?.layer?.id) {
     case 'bsm': {
       const bsm = feature.properties
@@ -52,6 +62,15 @@ export const getSelectedLayerPopupContent = (feature: any) => {
               ['Signal Group', feature.properties.signalGroupId],
             ]}
           />
+          <Box sx={{ mt: 2 }}>
+            <AtspmComparison
+              token={token}
+              intersectionId={intersectionId}
+              startTime={startTime}
+              endTime={endTime}
+              selectedFeature={selectedFeature}
+            />
+          </Box>
         </Box>
       )
 
@@ -76,6 +95,9 @@ export const getSelectedLayerPopupContent = (feature: any) => {
 }
 
 export const CustomPopup = (props) => {
+  const authToken = useSelector(selectToken)
+  const queryParams = useSelector(selectQueryParams)
+
   return (
     <Popup
       longitude={props.selectedFeature.clickedLocation.lng}
@@ -86,7 +108,14 @@ export const CustomPopup = (props) => {
       maxWidth={'500px'}
       closeOnClick={false}
     >
-      {getSelectedLayerPopupContent(props.selectedFeature.feature)}
+      {getSelectedLayerPopupContent(
+        props.selectedFeature.feature,
+        props.selectedFeature,
+        authToken,
+        queryParams.intersectionId,
+        queryParams.startDate,
+        queryParams.endDate
+      )}
     </Popup>
   )
 }
