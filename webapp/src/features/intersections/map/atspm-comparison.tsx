@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from
 import { Box, CircularProgress, Typography } from '@mui/material'
 
 import AtspmApi from '../../../apis/intersections/atspm-api'
+import EnvironmentVars from '../../../EnvironmentVars'
 
 type AtspmComparisonProps = {
   token?: string
@@ -293,6 +294,7 @@ const AtspmComparison = ({ token, intersectionId, startTime, endTime, selectedFe
 
   const selectedSignalGroup = Number(selectedFeature?.feature?.properties?.signalGroupId)
   const isConnectingLane = selectedFeature?.feature?.layer?.id === 'connecting-lanes'
+  const showComparisonBars = EnvironmentVars.ENABLE_ATSPM_COMPARISON_BARS
 
   useEffect(() => {
     const load = async () => {
@@ -401,17 +403,25 @@ const AtspmComparison = ({ token, intersectionId, startTime, endTime, selectedFe
         </Typography>
       ) : null}
 
-      <TimelineBar label="SPaT" segments={spatSegments} windowStart={windowStart} windowEnd={windowEnd} />
-      <TimelineBar label="ATSPM" segments={atspmSegments} windowStart={windowStart} windowEnd={windowEnd} />
+      {showComparisonBars ? (
+        <>
+          <TimelineBar label="SPaT" segments={spatSegments} windowStart={windowStart} windowEnd={windowEnd} />
+          <TimelineBar label="ATSPM" segments={atspmSegments} windowStart={windowStart} windowEnd={windowEnd} />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-        <Typography fontSize="11px" color="text.secondary">
-          {new Date(windowStart).toLocaleTimeString()}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+            <Typography fontSize="11px" color="text.secondary">
+              {new Date(windowStart).toLocaleTimeString()}
+            </Typography>
+            <Typography fontSize="11px" color="text.secondary">
+              {new Date(windowEnd).toLocaleTimeString()}
+            </Typography>
+          </Box>
+        </>
+      ) : (
+        <Typography fontSize="12px" color="text.secondary">
+          ATSPM comparison bars are disabled.
         </Typography>
-        <Typography fontSize="11px" color="text.secondary">
-          {new Date(windowEnd).toLocaleTimeString()}
-        </Typography>
-      </Box>
+      )}
     </Box>
   )
 }

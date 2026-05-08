@@ -38,6 +38,8 @@ class EnvironmentVars {
   static ENABLE_WZDX_FEATURES = process.env.VITE_ENABLE_WZDX_FEATURES !== 'false'
   static ENABLE_HAAS_FEATURES = process.env.VITE_ENABLE_HAAS_FEATURES !== 'false'
   static ENABLE_RSU_MODE_MENU_FEATURE = process.env.VITE_ENABLE_RSU_MODE_MENU_FEATURES !== 'false'
+  // Default OFF unless explicitly enabled
+  static ENABLE_ATSPM_COMPARISON_BARS = process.env.VITE_ENABLE_ATSPM_COMPARISON_BARS !== 'false'
   static WEBAPP_THEME_LIGHT = process.env.VITE_WEBAPP_THEME_LIGHT
   static WEBAPP_THEME_DARK = process.env.VITE_WEBAPP_THEME_DARK
 
