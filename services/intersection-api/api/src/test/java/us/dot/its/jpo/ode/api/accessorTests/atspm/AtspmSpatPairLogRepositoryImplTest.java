@@ -30,6 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ActiveProfiles;
@@ -56,10 +57,14 @@ public class AtspmSpatPairLogRepositoryImplTest {
     @Mock
     private Page<AtspmSpatPairLog> mockPage;
 
+    @Mock
+    private MongoConverter mongoConverter;
+
     @InjectMocks
     private AtspmSpatPairLogRepositoryImpl repository;
 
     private final Integer intersectionId = 123;
+    private final Long queryTime = 1724170718205L;
     private final Long startTime = 1724170658205L;
     private final Long endTime = 1724170778205L;
 
@@ -67,6 +72,26 @@ public class AtspmSpatPairLogRepositoryImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         repository = new AtspmSpatPairLogRepositoryImpl(mongoTemplate);
+        when(mongoTemplate.getConverter()).thenReturn(mongoConverter);
+
+        when(mongoConverter.read(eq(AtspmSpatPairLog.class), any(Document.class))).thenAnswer(invocation -> {
+            Document doc = invocation.getArgument(1);
+
+            AtspmSpatPairLog log = new AtspmSpatPairLog();
+            log.setIntersectionId(doc.getInteger("intersectionId"));
+
+            Date docStartTime = doc.getDate("startTime");
+            if (docStartTime != null) {
+                log.setStartTime(docStartTime.toInstant());
+            }
+
+            Date docEndTime = doc.getDate("endTime");
+            if (docEndTime != null) {
+                log.setEndTime(docEndTime.toInstant());
+            }
+
+            return log;
+        });
     }
 
     @Test
@@ -76,7 +101,7 @@ public class AtspmSpatPairLogRepositoryImplTest {
 
         when(mongoTemplate.count(queryCaptor.capture(), Mockito.<String>any())).thenReturn(expectedCount);
 
-        long resultCount = repository.count(intersectionId, startTime, endTime);
+        long resultCount = repository.count(intersectionId, queryTime);
 
         assertThat(resultCount).isEqualTo(expectedCount);
         assertThat(queryCaptor.getValue().getQueryObject().toJson()).contains("intersectionId");
@@ -98,9 +123,9 @@ public class AtspmSpatPairLogRepositoryImplTest {
                 any(),
                 eq(AtspmSpatPairLog.class))).thenReturn(mockPage);
         PageRequest pageRequest = PageRequest.of(0, 1);
-        doCallRealMethod().when(repo).find(intersectionId, startTime, endTime, pageRequest);
+        doCallRealMethod().when(repo).find(intersectionId, queryTime, pageRequest);
 
-        Page<AtspmSpatPairLog> results = repo.find(intersectionId, startTime, endTime, pageRequest);
+        Page<AtspmSpatPairLog> results = repo.find(intersectionId, queryTime, pageRequest);
 
         assertThat(results).isEqualTo(mockPage);
     }
@@ -114,7 +139,7 @@ public class AtspmSpatPairLogRepositoryImplTest {
 
         doReturn(log).when(mongoTemplate).findOne(any(Query.class), eq(AtspmSpatPairLog.class), anyString());
 
-        Page<AtspmSpatPairLog> page = repository.findLatest(intersectionId, startTime, endTime);
+        Page<AtspmSpatPairLog> page = repository.findLatest(intersectionId, queryTime);
 
         assertThat(page.getContent()).hasSize(1);
         assertThat(page.getContent().getFirst().getIntersectionId()).isEqualTo(intersectionId);
@@ -148,7 +173,7 @@ public class AtspmSpatPairLogRepositoryImplTest {
         doReturn(mockAggregationResult).when(mongoTemplate).aggregate(aggregationCaptor.capture(), anyString(),
                 eq(AggregationResult.class));
 
-        Page<AtspmSpatPairLog> response = repository.find(intersectionId, startTime, endTime, PageRequest.of(0, 1));
+        Page<AtspmSpatPairLog> response = repository.find(intersectionId, queryTime, PageRequest.of(0, 1));
 
         assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent().getFirst().getIntersectionId()).isEqualTo(intersectionId);

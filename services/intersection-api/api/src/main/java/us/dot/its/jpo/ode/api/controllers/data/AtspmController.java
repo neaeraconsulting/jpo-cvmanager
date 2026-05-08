@@ -35,7 +35,7 @@ public class AtspmController {
         this.atspmSpatPairLogRepository = atspmSpatPairLogRepository;
     }
 
-    @Operation(summary = "Find ATSPM SPAT Pairs", description = "Returns ATSPM SPAT pair logs filtered by intersection ID, start time, and end time. The latest parameter returns only the most recent matching record.")
+    @Operation(summary = "Find ATSPM SPAT Pairs", description = "Returns ATSPM SPAT pair logs filtered by intersection ID and query time. If query_time_utc_millis is provided, only records where startTime <= query_time <= endTime are returned. The latest parameter returns only the most recent matching record.")
     @RequestMapping(value = "/spat-pair", method = RequestMethod.GET, produces = "application/json")
     @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
     @ApiResponses(value = {
@@ -44,23 +44,23 @@ public class AtspmController {
     })
     public ResponseEntity<Page<AtspmSpatPairLog>> findAtspmSpatPairLogs(
             @RequestParam(name = "intersection_id") Integer intersectionID,
-            @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
-            @RequestParam(name = "end_time_utc_millis", required = false) Long endTime,
+            @RequestParam(name = "query_time_utc_millis", required = false) Long queryTime,
             @RequestParam(name = "latest", required = false, defaultValue = "false") boolean latest,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "10000") int size) {
 
         if (latest) {
-            return ResponseEntity.ok(atspmSpatPairLogRepository.findLatest(intersectionID, startTime, endTime));
+            System.out.println(atspmSpatPairLogRepository.findLatest(intersectionID, queryTime));
+            return ResponseEntity.ok(atspmSpatPairLogRepository.findLatest(intersectionID, queryTime));
         }
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<AtspmSpatPairLog> response = atspmSpatPairLogRepository.find(intersectionID, startTime, endTime,
+        Page<AtspmSpatPairLog> response = atspmSpatPairLogRepository.find(intersectionID, queryTime,
                 pageable);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Count ATSPM SPAT Pairs", description = "Returns the count of ATSPM SPAT pair logs filtered by intersection ID, start time, and end time.")
+    @Operation(summary = "Count ATSPM SPAT Pairs", description = "Returns the count of ATSPM SPAT pair logs filtered by intersection ID and query time. If query_time_utc_millis is provided, only records where startTime <= query_time <= endTime are counted.")
     @RequestMapping(value = "/spat-pair/count", method = RequestMethod.GET, produces = "application/json")
     @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
     @ApiResponses(value = {
@@ -69,10 +69,9 @@ public class AtspmController {
     })
     public ResponseEntity<Long> countAtspmSpatPairLogs(
             @RequestParam(name = "intersection_id") Integer intersectionID,
-            @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
-            @RequestParam(name = "end_time_utc_millis", required = false) Long endTime) {
+            @RequestParam(name = "query_time_utc_millis", required = false) Long queryTime) {
 
-        long count = atspmSpatPairLogRepository.count(intersectionID, startTime, endTime);
+        long count = atspmSpatPairLogRepository.count(intersectionID, queryTime);
         return ResponseEntity.ok(count);
     }
 }

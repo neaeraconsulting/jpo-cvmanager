@@ -9,6 +9,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Data
 public class AtspmSpatPair {
 
     // ATSPM properties may be null if unpaired

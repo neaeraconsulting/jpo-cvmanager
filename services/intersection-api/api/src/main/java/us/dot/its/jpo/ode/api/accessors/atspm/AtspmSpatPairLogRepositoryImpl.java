@@ -31,41 +31,34 @@ public class AtspmSpatPairLogRepositoryImpl implements AtspmSpatPairLogRepositor
     }
 
     /**
-     * Get the count of records for a given intersectionId, startTime, and endTime.
+     * Get the count of records for a given intersectionId and queryTime.
      *
      * @param intersectionId the intersection ID to query by, if null will not be
      *                       applied
-     * @param startTime      the minimum batch start time to query by, if null will
-     *                       not be applied
-     * @param endTime        the maximum batch end time to query by, if null will
-     *                       not be applied
+     * @param queryTime      if provided, only records where startTime <= queryTime
+     *                       <= endTime are returned
      * @return the count of records that match the given criteria
      */
     public long count(
             Integer intersectionId,
-            Long startTime,
-            Long endTime) {
-        Query query = Query.query(buildCriteria(intersectionId, startTime, endTime));
+            Long queryTime) {
+        Query query = Query.query(buildCriteria(intersectionId, queryTime));
         return mongoTemplate.count(query, collectionName);
     }
 
     /**
-     * Get the single most recent record for a given intersectionId, startTime, and
-     * endTime.
+     * Get the single most recent record for a given intersectionId and queryTime.
      *
      * @param intersectionId the intersection ID to query by, if null will not be
      *                       applied
-     * @param startTime      the minimum batch start time to query by, if null will
-     *                       not be applied
-     * @param endTime        the maximum batch end time to query by, if null will
-     *                       not be applied
+     * @param queryTime      if provided, only records where startTime <= queryTime
+     *                       <= endTime are returned
      * @return a single-page response containing the latest matching record
      */
     public Page<AtspmSpatPairLog> findLatest(
             Integer intersectionId,
-            Long startTime,
-            Long endTime) {
-        Query query = Query.query(buildCriteria(intersectionId, startTime, endTime));
+            Long queryTime) {
+        Query query = Query.query(buildCriteria(intersectionId, queryTime));
         Sort sort = Sort.by(Sort.Direction.DESC, SORT_FIELD);
         return wrapSingleResultWithPage(
                 mongoTemplate.findOne(
@@ -75,37 +68,32 @@ public class AtspmSpatPairLogRepositoryImpl implements AtspmSpatPairLogRepositor
     }
 
     /**
-     * Get paginated data for a given intersectionId, startTime, and endTime.
+     * Get paginated data for a given intersectionId and queryTime.
      *
      * @param intersectionId the intersection ID to query by, if null will not be
      *                       applied
-     * @param startTime      the minimum batch start time to query by, if null will
-     *                       not be applied
-     * @param endTime        the maximum batch end time to query by, if null will
-     *                       not be applied
+     * @param queryTime      if provided, only records where startTime <= queryTime
+     *                       <= endTime are returned
      * @param pageable       the pageable object to use for pagination
      * @return the paginated data that matches the given criteria
      */
     public Page<AtspmSpatPairLog> find(
             Integer intersectionId,
-            Long startTime,
-            Long endTime,
+            Long queryTime,
             Pageable pageable) {
-        Criteria criteria = buildCriteria(intersectionId, startTime, endTime);
+        Criteria criteria = buildCriteria(intersectionId, queryTime);
         Sort sort = Sort.by(Sort.Direction.DESC, SORT_FIELD);
         return findPage(mongoTemplate, collectionName, pageable, criteria, sort, null, AtspmSpatPairLog.class);
     }
 
-    private Criteria buildCriteria(Integer intersectionId, Long startTime, Long endTime) {
+    private Criteria buildCriteria(Integer intersectionId, Long queryTime) {
         Criteria criteria = new IntersectionCriteria()
                 .whereOptional(INTERSECTION_ID_FIELD, intersectionId);
 
-        if (startTime != null) {
-            criteria.and(START_TIME_FIELD).gte(toDate(startTime));
-        }
-
-        if (endTime != null) {
-            criteria.and(END_TIME_FIELD).lte(toDate(endTime));
+        if (queryTime != null) {
+            Date queryDate = toDate(queryTime);
+            criteria.and(START_TIME_FIELD).lte(queryDate);
+            criteria.and(END_TIME_FIELD).gte(queryDate);
         }
 
         return criteria;

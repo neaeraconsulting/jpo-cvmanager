@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 import us.dot.its.jpo.ode.api.models.atspm.AtspmSpatPairLog;
 
 public interface AtspmSpatPairLogRepository {
-    long count(Integer intersectionId, Long startTime, Long endTime);
+    long count(Integer intersectionId, Long queryTime);
 
-    Page<AtspmSpatPairLog> findLatest(Integer intersectionId, Long startTime, Long endTime);
+    Page<AtspmSpatPairLog> findLatest(Integer intersectionId, Long queryTime);
 
-    Page<AtspmSpatPairLog> find(Integer intersectionId, Long startTime, Long endTime, Pageable pageable);
+    Page<AtspmSpatPairLog> find(Integer intersectionId, Long queryTime, Pageable pageable);
 }
