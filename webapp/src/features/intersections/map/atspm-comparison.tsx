@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { Box, CircularProgress, Typography } from '@mui/material'
 
 import AtspmApi from '../../../apis/intersections/atspm-api'
@@ -163,35 +163,124 @@ const TimelineBar = ({
   windowEnd: number
 }) => {
   const total = Math.max(windowEnd - windowStart, 1)
+  const tickCount = 6
+  const ticks = Array.from({ length: tickCount + 1 }, (_, i) => i / tickCount)
+  const [hoveredTs, setHoveredTs] = useState<number | null>(null)
+  const [hoverPercent, setHoverPercent] = useState(0)
+
+  const onBarMouseMove = (event: ReactMouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const clampedX = Math.min(Math.max(x, 0), rect.width)
+    const percent = rect.width > 0 ? clampedX / rect.width : 0
+    setHoverPercent(percent)
+    setHoveredTs(Math.round(windowStart + percent * total))
+  }
+
+  const onBarMouseLeave = () => {
+    setHoveredTs(null)
+  }
+
   return (
-    <Box sx={{ mb: 1.5 }}>
-      <Typography fontSize="13px" sx={{ mb: 0.5 }}>
-        {label}
-      </Typography>
+    <Box sx={{ mb: 1.5, pr: 1 }}>
       <Box
         sx={{
-          width: '100%',
-          height: 20,
-          borderRadius: 1,
-          overflow: 'hidden',
           display: 'flex',
-          border: '1px solid #4d4d4d',
+          alignItems: 'center',
+          gap: 1,
         }}
       >
-        {segments.map((segment, idx) => {
-          const width = ((segment.end - segment.start) / total) * 100
-          const indication = normalizeIndication(segment.indication)
-          return (
+        <Typography fontSize="13px" sx={{ width: 50, textAlign: 'right', flexShrink: 0 }}>
+          {label}
+        </Typography>
+
+        <Box sx={{ position: 'relative', flex: 1 }}>
+          {hoveredTs !== null ? (
             <Box
-              key={`${label}-${idx}-${segment.start}`}
               sx={{
-                width: `${Math.max(width, 0.5)}%`,
-                backgroundColor: SIGNAL_COLORS[indication] ?? SIGNAL_COLORS.UNKNOWN,
+                position: 'absolute',
+                left: `${hoverPercent * 100}%`,
+                top: -24,
+                transform: 'translateX(-50%)',
+                px: 0.75,
+                py: 0.25,
+                borderRadius: 0.5,
+                fontSize: '11px',
+                lineHeight: 1.2,
+                color: 'common.white',
+                backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                pointerEvents: 'none',
+                whiteSpace: 'nowrap',
+                zIndex: 2,
               }}
-              title={`${indication}: ${new Date(segment.start).toLocaleTimeString()} - ${new Date(segment.end).toLocaleTimeString()}`}
-            />
-          )
-        })}
+            >
+              {new Date(hoveredTs).toLocaleTimeString()}
+            </Box>
+          ) : null}
+
+          <Box
+            onMouseMove={onBarMouseMove}
+            onMouseLeave={onBarMouseLeave}
+            sx={{
+              width: '100%',
+              height: 20,
+              borderRadius: 1,
+              overflow: 'hidden',
+              display: 'flex',
+              border: '1px solid #4d4d4d',
+              position: 'relative',
+              cursor: 'crosshair',
+            }}
+          >
+            {segments.map((segment, idx) => {
+              const width = ((segment.end - segment.start) / total) * 100
+              const indication = normalizeIndication(segment.indication)
+              return (
+                <Box
+                  key={`${label}-${idx}-${segment.start}`}
+                  sx={{
+                    width: `${Math.max(width, 0.5)}%`,
+                    backgroundColor: SIGNAL_COLORS[indication] ?? SIGNAL_COLORS.UNKNOWN,
+                  }}
+                  title={`${indication}: ${new Date(segment.start).toLocaleTimeString()} - ${new Date(segment.end).toLocaleTimeString()}`}
+                />
+              )
+            })}
+
+            {hoveredTs !== null ? (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: `${hoverPercent * 100}%`,
+                  top: 0,
+                  bottom: 0,
+                  width: '1px',
+                  backgroundColor: 'common.white',
+                  opacity: 0.85,
+                  pointerEvents: 'none',
+                }}
+              />
+            ) : null}
+          </Box>
+
+          <Box sx={{ position: 'relative', height: 8, mt: 0.25 }}>
+            {ticks.map((tick) => (
+              <Box
+                key={`${label}-tick-${tick}`}
+                sx={{
+                  position: 'absolute',
+                  left: `${tick * 100}%`,
+                  top: 0,
+                  width: '1px',
+                  height: 6,
+                  backgroundColor: 'text.secondary',
+                  opacity: 0.7,
+                  transform: 'translateX(-0.5px)',
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
       </Box>
     </Box>
   )
@@ -223,8 +312,6 @@ const AtspmComparison = ({ token, intersectionId, startTime, endTime, selectedFe
           queryTime: endTime,
           latest: true,
         })
-        console.log('Setting latest ATSPM log:')
-        console.log('Retrieved ATSPM SPaT pair logs:', logs)
 
         setLatestLog(logs?.[0] ?? null)
       } catch (e) {
