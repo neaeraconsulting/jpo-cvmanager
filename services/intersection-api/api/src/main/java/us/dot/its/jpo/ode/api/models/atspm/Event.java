@@ -13,6 +13,7 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "eventType")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AtspmSpatPairEvent.class, name = "AtspmSpatPair"),
+        @JsonSubTypes.Type(value = AtspmSpatSignalGroupAlignmentEvent.class, name = "AtspmSpatSignalGroupAlignment"),
 })
 @Data
 @Slf4j
