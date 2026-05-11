@@ -157,29 +157,36 @@ const TimelineBar = ({
   segments,
   windowStart,
   windowEnd,
+  hoveredTs,
+  hoverPercent,
+  onHoverChange,
+  onHoverEnd,
+  showHoverLabel = false,
 }: {
   label: string
   segments: TimelineSegment[]
   windowStart: number
   windowEnd: number
+  hoveredTs: number | null
+  hoverPercent: number
+  onHoverChange: (hoverTs: number, hoverPercent: number) => void
+  onHoverEnd: () => void
+  showHoverLabel?: boolean
 }) => {
   const total = Math.max(windowEnd - windowStart, 1)
   const tickCount = 6
   const ticks = Array.from({ length: tickCount + 1 }, (_, i) => i / tickCount)
-  const [hoveredTs, setHoveredTs] = useState<number | null>(null)
-  const [hoverPercent, setHoverPercent] = useState(0)
 
   const onBarMouseMove = (event: ReactMouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
     const x = event.clientX - rect.left
     const clampedX = Math.min(Math.max(x, 0), rect.width)
     const percent = rect.width > 0 ? clampedX / rect.width : 0
-    setHoverPercent(percent)
-    setHoveredTs(Math.round(windowStart + percent * total))
+    onHoverChange(Math.round(windowStart + percent * total), percent)
   }
 
   const onBarMouseLeave = () => {
-    setHoveredTs(null)
+    onHoverEnd()
   }
 
   return (
@@ -196,7 +203,7 @@ const TimelineBar = ({
         </Typography>
 
         <Box sx={{ position: 'relative', flex: 1 }}>
-          {hoveredTs !== null ? (
+          {hoveredTs !== null && showHoverLabel ? (
             <Box
               sx={{
                 position: 'absolute',
@@ -291,10 +298,21 @@ const AtspmComparison = ({ token, intersectionId, startTime, endTime, selectedFe
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [latestLog, setLatestLog] = useState<AtspmSpatPairLog | null>(null)
+  const [sharedHoveredTs, setSharedHoveredTs] = useState<number | null>(null)
+  const [sharedHoverPercent, setSharedHoverPercent] = useState(0)
 
   const selectedSignalGroup = Number(selectedFeature?.feature?.properties?.signalGroupId)
   const isConnectingLane = selectedFeature?.feature?.layer?.id === 'connecting-lanes'
   const showComparisonBars = EnvironmentVars.ENABLE_ATSPM_COMPARISON_BARS
+
+  const onSharedHoverChange = (hoverTs: number, hoverPercent: number) => {
+    setSharedHoveredTs(hoverTs)
+    setSharedHoverPercent(hoverPercent)
+  }
+
+  const onSharedHoverEnd = () => {
+    setSharedHoveredTs(null)
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -405,8 +423,27 @@ const AtspmComparison = ({ token, intersectionId, startTime, endTime, selectedFe
 
       {showComparisonBars ? (
         <>
-          <TimelineBar label="SPaT" segments={spatSegments} windowStart={windowStart} windowEnd={windowEnd} />
-          <TimelineBar label="ATSPM" segments={atspmSegments} windowStart={windowStart} windowEnd={windowEnd} />
+          <TimelineBar
+            label="SPaT"
+            segments={spatSegments}
+            windowStart={windowStart}
+            windowEnd={windowEnd}
+            hoveredTs={sharedHoveredTs}
+            hoverPercent={sharedHoverPercent}
+            onHoverChange={onSharedHoverChange}
+            onHoverEnd={onSharedHoverEnd}
+            showHoverLabel
+          />
+          <TimelineBar
+            label="ATSPM"
+            segments={atspmSegments}
+            windowStart={windowStart}
+            windowEnd={windowEnd}
+            hoveredTs={sharedHoveredTs}
+            hoverPercent={sharedHoverPercent}
+            onHoverChange={onSharedHoverChange}
+            onHoverEnd={onSharedHoverEnd}
+          />
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
             <Typography fontSize="11px" color="text.secondary">
