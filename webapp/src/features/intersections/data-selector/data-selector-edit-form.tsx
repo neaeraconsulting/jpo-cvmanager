@@ -45,6 +45,8 @@ const EVENT_TYPES: Item[] = [
   { label: 'SpatMinimumDataEvent', value: 'spat-minimum-data' },
   { label: 'MapBroadcastRateEvent', value: 'map-broadcast-rate' },
   { label: 'SpatBroadcastRateEvent', value: 'spat-broadcast-rate' },
+  { label: 'AtspmSpatPairEvent', value: 'atspm-spat-pair' },
+  { label: 'AtspmSpatSignalGroupAlignmentEvent', value: 'atspm-spat-signal-group-alignment' },
 ]
 
 const ASSESSMENT_TYPES: Item[] = [

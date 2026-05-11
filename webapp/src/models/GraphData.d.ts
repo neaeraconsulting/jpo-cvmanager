@@ -13,6 +13,8 @@ type GraphArrayDataType = {
   SpatMinimumDataEventCount: number
   MapBroadcastRateEventCount: number
   SpatBroadcastRateEventCount: number
+  AtspmSpatPairEventCount: number
+  AtspmSpatSignalGroupAlignmentEventCount: number
 }
 
 type EVENT_TYPES =
@@ -30,3 +32,5 @@ type EVENT_TYPES =
   | 'SpatMinimumDataEvent'
   | 'MapBroadcastRateEvent'
   | 'SpatBroadcastRateEvent'
+  | 'AtspmSpatPairEvent'
+  | 'AtspmSpatSignalGroupAlignmentEvent'

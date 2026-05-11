@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.Date;
 
 public class IntersectionCriteria extends Criteria {
 
@@ -40,6 +39,36 @@ public class IntersectionCriteria extends Criteria {
     }
 
     /**
+     * Build a query criteria object based on a UTC time window this function
+     * preserves the numeric format of the UTC datestamp and performs no conversions
+     *
+     * @param fieldName        the db field to apply criteria to
+     * @param startEpochMillis the nullable start time of the window, in
+     *                         milliseconds since epoch
+     * @param endEpochMillis   the nullable end time of the window, in milliseconds
+     *                         since epoch
+     * @return the criteria object to use for querying
+     */
+    public IntersectionCriteria withinUtcTimeWindow(
+            @Nonnull String fieldName,
+            @Nullable Long startEpochMillis,
+            @Nullable Long endEpochMillis) {
+        if (startEpochMillis != null && endEpochMillis != null) {
+            this.and(fieldName)
+                    .gte(startEpochMillis)
+                    .lte(endEpochMillis);
+            return this;
+        } else if (startEpochMillis != null) {
+            this.and(fieldName).gte(startEpochMillis);
+            return this;
+        } else if (endEpochMillis != null) {
+            this.and(fieldName).lte(endEpochMillis);
+            return this;
+        }
+        return this;
+    }
+
+    /**
      * Build a query criteria object based on a time window
      *
      * @param epochMillis    the time of the window, in milliseconds since epoch
@@ -48,7 +77,7 @@ public class IntersectionCriteria extends Criteria {
      */
     private Object formatDate(Long epochMillis, boolean formatAsString) {
         return formatAsString ? Instant.ofEpochMilli(epochMillis).toString()
-                : Date.from(Instant.ofEpochMilli(epochMillis));
+                : epochMillis;
     }
 
     /**

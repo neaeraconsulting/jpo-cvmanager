@@ -42,6 +42,8 @@ const valid_counts_event_types: string[] = [
   'stop-line-passage',
   'stop-line-stop',
   'time-change-details',
+  'atspm-spat-pair',
+  'atspm-spat-signal-group-alignment',
 ]
 
 const DataSelectorPage = () => {

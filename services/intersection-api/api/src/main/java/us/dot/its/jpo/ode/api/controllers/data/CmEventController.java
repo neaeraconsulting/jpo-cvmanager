@@ -43,6 +43,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.ode.api.accessors.events.atspm_spat_pair_event.AtspmSpatPairEventRepository;
+import us.dot.its.jpo.ode.api.accessors.events.atspm_spat_signal_group_alignment_event.AtspmSpatSignalGroupAlignmentEventRepository;
 import us.dot.its.jpo.ode.api.accessors.events.bsm_event.BsmEventRepository;
 import us.dot.its.jpo.ode.api.accessors.events.bsm_message_count_progression_event.BsmMessageCountProgressionEventRepository;
 import us.dot.its.jpo.ode.api.accessors.events.connection_of_travel_event.ConnectionOfTravelEventRepository;
@@ -61,6 +63,8 @@ import us.dot.its.jpo.ode.api.accessors.events.stop_line_stop_event.StopLineStop
 import us.dot.its.jpo.ode.api.accessors.events.time_change_details_event.TimeChangeDetailsEventRepository;
 import us.dot.its.jpo.ode.api.models.IDCount;
 import us.dot.its.jpo.ode.api.models.MinuteCount;
+import us.dot.its.jpo.ode.api.models.atspm.AtspmSpatPairEvent;
+import us.dot.its.jpo.ode.api.models.atspm.AtspmSpatSignalGroupAlignmentEvent;
 import us.dot.its.jpo.ode.mockdata.MockEventGenerator;
 import us.dot.its.jpo.ode.mockdata.MockIDCountGenerator;
 
@@ -90,6 +94,8 @@ public class CmEventController {
     private final MapMessageCountProgressionEventRepository mapMessageCountProgressionEventRepo;
     private final BsmMessageCountProgressionEventRepository bsmMessageCountProgressionEventRepo;
     private final BsmEventRepository bsmEventRepo;
+    private final AtspmSpatPairEventRepository atspmSpatPairEventRepo;
+    private final AtspmSpatSignalGroupAlignmentEventRepository atspmSpatSignalGroupAlignmentEventRepo;
 
     DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
     int MILLISECONDS_PER_MINUTE = 60 * 1000;
@@ -111,7 +117,9 @@ public class CmEventController {
             SpatMessageCountProgressionEventRepository spatMessageCountProgressionEventRepo,
             MapMessageCountProgressionEventRepository mapMessageCountProgressionEventRepo,
             BsmMessageCountProgressionEventRepository bsmMessageCountProgressionEventRepo,
-            BsmEventRepository bsmEventRepo) {
+            BsmEventRepository bsmEventRepo,
+            AtspmSpatPairEventRepository atspmSpatPairEventRepo,
+            AtspmSpatSignalGroupAlignmentEventRepository atspmSpatSignalGroupAlignmentEventRepo) {
         this.connectionOfTravelEventRepo = connectionOfTravelEventRepo;
         this.intersectionReferenceAlignmentEventRepo = intersectionReferenceAlignmentEventRepo;
         this.laneDirectionOfTravelEventRepo = laneDirectionOfTravelEventRepo;
@@ -128,6 +136,158 @@ public class CmEventController {
         this.mapMessageCountProgressionEventRepo = mapMessageCountProgressionEventRepo;
         this.bsmMessageCountProgressionEventRepo = bsmMessageCountProgressionEventRepo;
         this.bsmEventRepo = bsmEventRepo;
+        this.atspmSpatPairEventRepo = atspmSpatPairEventRepo;
+        this.atspmSpatSignalGroupAlignmentEventRepo = atspmSpatSignalGroupAlignmentEventRepo;
+    }
+
+    @Operation(summary = "Retrieve ATSPM SPAT Pair Events", description = "Get ATSPM SPAT Pair Events, filtered by intersection ID, start time, and end time. The latest flag will only return the latest message satisfying the query.")
+    @RequestMapping(value = "/atspm-spat-pair", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Requires SUPER_USER, or USER role with access to the intersection requested"),
+    })
+    public ResponseEntity<Page<AtspmSpatPairEvent>> findAtspmSpatPairEvents(
+            @RequestParam(name = "intersection_id") Integer intersectionID,
+            @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
+            @RequestParam(name = "end_time_utc_millis", required = false) Long endTime,
+            @RequestParam(name = "latest", required = false, defaultValue = "false") boolean latest,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "size", required = false, defaultValue = "10000") int size,
+            @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
+        if (testData) {
+            List<AtspmSpatPairEvent> list = new ArrayList<>();
+            return ResponseEntity.ok(new PageImpl<>(list, PageRequest.of(page, size), list.size()));
+        }
+
+        if (latest) {
+            return ResponseEntity.ok(atspmSpatPairEventRepo.findLatest(intersectionID, startTime, endTime));
+        } else {
+            PageRequest pageable = PageRequest.of(page, size);
+            Page<AtspmSpatPairEvent> response = atspmSpatPairEventRepo.find(intersectionID, startTime, endTime,
+                    pageable);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @Operation(summary = "Count ATSPM SPAT Pair Events", description = "Get the count of ATSPM SPAT Pair Events, filtered by intersection ID, start time, and end time.")
+    @RequestMapping(value = "/atspm-spat-pair/count", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Requires SUPER_USER, or USER role with access to the intersection requested"),
+    })
+    public ResponseEntity<Long> countAtspmSpatPairEvents(
+            @RequestParam(name = "intersection_id") Integer intersectionID,
+            @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
+            @RequestParam(name = "end_time_utc_millis", required = false) Long endTime,
+            @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
+
+        if (testData) {
+            return ResponseEntity.ok(1L);
+        } else {
+            long count = atspmSpatPairEventRepo.count(intersectionID, startTime, endTime);
+
+            return ResponseEntity.ok(count);
+        }
+    }
+
+    @Operation(summary = "Retrieve Aggregated Daily Counts of ATSPM SPAT Pair Events", description = "Get the aggregated daily counts of ATSPM SPAT Pair Events, filtered by intersection ID, start time, and end time.")
+    @RequestMapping(value = "/atspm-spat-pair/daily-counts", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Requires SUPER_USER, or USER role with access to the intersection requested"),
+    })
+    public ResponseEntity<List<IDCount>> getDailyAtspmSpatPairEventCounts(
+            @RequestParam(name = "intersection_id") Integer intersectionID,
+            @RequestParam(name = "start_time_utc_millis") Long startTime,
+            @RequestParam(name = "end_time_utc_millis") Long endTime,
+            @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
+
+        if (testData) {
+            return ResponseEntity.ok(MockIDCountGenerator.getDateIDCounts());
+        } else {
+            return ResponseEntity.ok(
+                    atspmSpatPairEventRepo.getAggregatedDailyAtspmSpatPairEventCounts(intersectionID, startTime,
+                            endTime));
+        }
+    }
+
+    @Operation(summary = "Retrieve ATSPM SPAT Signal Group Alignment Events", description = "Get ATSPM SPAT Signal Group Alignment Events, filtered by intersection ID, start time, and end time. The latest flag will only return the latest message satisfying the query.")
+    @RequestMapping(value = "/atspm-spat-signal-group-alignment", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Requires SUPER_USER, or USER role with access to the intersection requested"),
+    })
+    public ResponseEntity<Page<AtspmSpatSignalGroupAlignmentEvent>> findAtspmSpatSignalGroupAlignmentEvents(
+            @RequestParam(name = "intersection_id") Integer intersectionID,
+            @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
+            @RequestParam(name = "end_time_utc_millis", required = false) Long endTime,
+            @RequestParam(name = "latest", required = false, defaultValue = "false") boolean latest,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "size", required = false, defaultValue = "10000") int size,
+            @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
+        if (testData) {
+            List<AtspmSpatSignalGroupAlignmentEvent> list = new ArrayList<>();
+            return ResponseEntity.ok(new PageImpl<>(list, PageRequest.of(page, size), list.size()));
+        }
+
+        if (latest) {
+            return ResponseEntity
+                    .ok(atspmSpatSignalGroupAlignmentEventRepo.findLatest(intersectionID, startTime, endTime));
+        } else {
+            PageRequest pageable = PageRequest.of(page, size);
+            Page<AtspmSpatSignalGroupAlignmentEvent> response = atspmSpatSignalGroupAlignmentEventRepo
+                    .find(intersectionID, startTime, endTime, pageable);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @Operation(summary = "Count ATSPM SPAT Signal Group Alignment Events", description = "Get the count of ATSPM SPAT Signal Group Alignment Events, filtered by intersection ID, start time, and end time.")
+    @RequestMapping(value = "/atspm-spat-signal-group-alignment/count", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Requires SUPER_USER, or USER role with access to the intersection requested"),
+    })
+    public ResponseEntity<Long> countAtspmSpatSignalGroupAlignmentEvents(
+            @RequestParam(name = "intersection_id") Integer intersectionID,
+            @RequestParam(name = "start_time_utc_millis", required = false) Long startTime,
+            @RequestParam(name = "end_time_utc_millis", required = false) Long endTime,
+            @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
+
+        if (testData) {
+            return ResponseEntity.ok(1L);
+        } else {
+            long count = atspmSpatSignalGroupAlignmentEventRepo.count(intersectionID, startTime, endTime);
+
+            return ResponseEntity.ok(count);
+        }
+    }
+
+    @Operation(summary = "Retrieve Aggregated Daily Counts of ATSPM SPAT Signal Group Alignment Events", description = "Get the aggregated daily counts of ATSPM SPAT Signal Group Alignment Events, filtered by intersection ID, start time, and end time.")
+    @RequestMapping(value = "/atspm-spat-signal-group-alignment/daily-counts", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("@PermissionService.isSuperUser() || (@PermissionService.hasIntersection(#intersectionID, 'USER') and @PermissionService.hasRole('USER'))")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Requires SUPER_USER, or USER role with access to the intersection requested"),
+    })
+    public ResponseEntity<List<IDCount>> getDailyAtspmSpatSignalGroupAlignmentEventCounts(
+            @RequestParam(name = "intersection_id") Integer intersectionID,
+            @RequestParam(name = "start_time_utc_millis") Long startTime,
+            @RequestParam(name = "end_time_utc_millis") Long endTime,
+            @RequestParam(name = "test", required = false, defaultValue = "false") boolean testData) {
+
+        if (testData) {
+            return ResponseEntity.ok(MockIDCountGenerator.getDateIDCounts());
+        } else {
+            return ResponseEntity.ok(
+                    atspmSpatSignalGroupAlignmentEventRepo
+                            .getAggregatedDailyAtspmSpatSignalGroupAlignmentEventCounts(intersectionID, startTime,
+                                    endTime));
+        }
     }
 
     @Operation(summary = "Retrieve Intersection Reference Alignment Events", description = "Get Intersection Reference Alignment Events, filtered by intersection ID, start time, and end time. The latest flag will only return the latest message satisfying the query.")

@@ -17,6 +17,8 @@ class GraphsApi {
       SpatMinimumDataEventCount: 0,
       MapBroadcastRateEventCount: 0,
       SpatBroadcastRateEventCount: 0,
+      AtspmSpatPairEventCount: 0,
+      AtspmSpatSignalGroupAlignmentEventCount: 0,
     }
     switch (event_type) {
       case 'connection-of-travel':
@@ -58,6 +60,12 @@ class GraphsApi {
       case 'spat-broadcast-rate':
         val.SpatBroadcastRateEventCount = count
         break
+      case 'atspm-spat-pair':
+        val.AtspmSpatPairEventCount = count
+        break
+      case 'atspm-spat-signal-group-alignment':
+        val.AtspmSpatSignalGroupAlignmentEventCount = count
+        break
     }
     return val
   }
@@ -78,6 +86,9 @@ class GraphsApi {
     SpatMinimumDataEventCount: val1.SpatMinimumDataEventCount + val2.SpatMinimumDataEventCount,
     MapBroadcastRateEventCount: val1.MapBroadcastRateEventCount + val2.MapBroadcastRateEventCount,
     SpatBroadcastRateEventCount: val1.SpatBroadcastRateEventCount + val2.SpatBroadcastRateEventCount,
+    AtspmSpatPairEventCount: val1.AtspmSpatPairEventCount + val2.AtspmSpatPairEventCount,
+    AtspmSpatSignalGroupAlignmentEventCount:
+      val1.AtspmSpatSignalGroupAlignmentEventCount + val2.AtspmSpatSignalGroupAlignmentEventCount,
   })
 
   async getGraphData({
