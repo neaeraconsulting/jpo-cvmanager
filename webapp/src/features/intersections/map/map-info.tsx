@@ -13,9 +13,12 @@ import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../../store'
 import { selectSelectedIntersection } from '../../../generalSlices/intersectionSlice'
+import { selectToken } from '../../../generalSlices/userSlice'
+import { selectQueryParams } from './map-slice'
 import '../../../components/css/RsuMapView.css'
 import { InfoOutlined, Close, ExpandMoreOutlined } from '@mui/icons-material'
 import type { ConnectionOfTravelNotification } from '../../../models/jpo-conflictmonitor/notifications/ConnectionOfTravelNotification'
+import AtspmComparison from './atspm-comparison'
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
   () => ({})
@@ -45,6 +48,15 @@ export const SidePanel = (props: SidePanelProps) => {
   const srmSsmCount = useSelector(selectSrmSsmCount)
   const srmMsgList = useSelector(selectSrmMsgList)
   const selectedIntersection = useSelector(selectSelectedIntersection)
+  const authToken = useSelector(selectToken)
+  const queryParams = useSelector(selectQueryParams)
+
+  const allSignalGroupIds = Array.from(
+    new Set([
+      ...(laneInfo?.features?.map((lane) => Number(lane?.properties?.signalGroupId)).filter((id) => !isNaN(id)) ?? []),
+      ...(signalGroups?.map((group) => Number(group?.signalGroup)).filter((id) => !isNaN(id)) ?? []),
+    ])
+  ).sort((a, b) => a - b)
 
   const toggleOpen = () => {
     if (props.openPanel === 'map-info') {
@@ -225,6 +237,47 @@ export const SidePanel = (props: SidePanelProps) => {
                           }
                         />
                       </Box>
+                    </AccordionDetails>
+                  </Accordion>
+                  <Accordion
+                    sx={{
+                      '& .Mui-expanded': {
+                        backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
+                      },
+                    }}
+                    disableGutters
+                  >
+                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+                      <Typography fontSize="16px">ATSPM Comparison (All Signal Groups)</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      {allSignalGroupIds.length === 0 ? (
+                        <Typography fontSize="13px">No signal groups found for this intersection.</Typography>
+                      ) : (
+                        allSignalGroupIds.map((signalGroupId) => (
+                          <Box
+                            key={`atspm-signal-group-${signalGroupId}`}
+                            sx={{
+                              mb: 2,
+                              pb: 1.5,
+                              borderBottom: `1px solid ${theme.palette.divider}`,
+                            }}
+                          >
+                            <AtspmComparison
+                              token={authToken}
+                              intersectionId={queryParams.intersectionId}
+                              startTime={queryParams.startDate}
+                              endTime={queryParams.endDate}
+                              selectedFeature={{
+                                feature: {
+                                  layer: { id: 'connecting-lanes' },
+                                  properties: { signalGroupId },
+                                },
+                              }}
+                            />
+                          </Box>
+                        ))
+                      )}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion
