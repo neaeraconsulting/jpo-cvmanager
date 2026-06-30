@@ -80,8 +80,6 @@
     "MESSAGETYPE",
     "millis",
     "mongosh",
-    "moove",
-    "mooveai",
     "msgfwd",
     "multidict",
     "Multivalued",
@@ -110,6 +108,7 @@
     "rxtxfwd",
     "SASL",
     "Scms",
+    "secretmanager",
     "SNMP",
     "snmpcredential",
     "snmperrorcheck",
@@ -125,13 +124,13 @@
     "subrole",
     "svcs",
     "TABLENAME",
+    "Thymeleaf",
     "timefield",
     "toaddrs",
     "txrxmsg",
     "upgrader",
     "usdot",
     "usdotjpoode",
-    "userauth",
     "utctimestamp",
     "writedb",
     "WSMP",
@@ -158,5 +157,6 @@
     "json",
     "jsonc",
     "markdown"
-  ]
+  ],
+  "java.debug.settings.onBuildFailureProceed": true
 }
