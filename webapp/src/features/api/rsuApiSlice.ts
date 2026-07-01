@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import EnvironmentVars from '../../EnvironmentVars'
 import { RootState } from '../../store'
 import { selectToken } from '../../generalSlices/userSlice'
-import { getQueryString } from './intersectionApiSlice'
+import { getQueryString } from './intersectionConfigSlice'
 import { AdminRsu, AdminRsuAllowedSelections } from '../../models/Rsu'
 import { AdminRsuCreationBody } from '../adminAddRsu/AdminAddRsu'
 

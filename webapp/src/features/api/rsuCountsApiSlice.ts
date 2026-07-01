@@ -4,7 +4,7 @@ import EnvironmentVars from '../../EnvironmentVars'
 import { RootState } from '../../store'
 import { selectToken } from '../../generalSlices/userSlice'
 import { RsuCounts } from '../../models/RsuApi'
-import { getQueryString } from './intersectionApiSlice'
+import { getQueryString } from './intersectionConfigSlice'
 
 // Define a service using a base URL and expected endpoints
 export const rsuCountsApiSlice = createApi({

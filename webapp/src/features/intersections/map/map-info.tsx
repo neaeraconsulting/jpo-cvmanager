@@ -137,8 +137,9 @@ export const SidePanel = (props: SidePanelProps) => {
 
   const getSsmRow = (ssm: SsmInfo) => {
     const rows: any[] = []
-    rows.push([`SSM ID`, ssm.requestID])
+    rows.push([`Seq. #`, ssm.sequenceNumber])
     rows.push([`Status`, ssm.status])
+    rows.push([`Timestamp`, format(ssm.timeStampEpochMillis, 'yyyy-MM-dd HH:mm:ss.SSS')])
     if (ssm.inboundLaneID || ssm.outboundLaneID) {
       rows.push(['Inbound Lane', ssm.inboundLaneID])
       rows.push(['Outbound Lane', ssm.outboundLaneID])
@@ -163,7 +164,7 @@ export const SidePanel = (props: SidePanelProps) => {
       >
         <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
           <Typography fontSize="16px">
-            {ssm.requestID}: {ssm.status}
+            Request: {ssm.requestID}, Seq. Num: {ssm.sequenceNumber}, Status: {ssm.status}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -403,7 +404,7 @@ export const SidePanel = (props: SidePanelProps) => {
                       <Typography fontSize="16px">Signal Request Messages (SRMs)</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Box sx={{ mt: 1 }}>{srmInfo.map((srm) => getSrmRow(srm, ssmResponseDict))}</Box>
+                      <Box>{srmInfo.map((srm) => getSrmRow(srm, ssmResponseDict))}</Box>
                     </AccordionDetails>
                   </Accordion>
                   <Accordion

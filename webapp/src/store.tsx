@@ -27,7 +27,6 @@ import dataSelectorReducer from './features/intersections/data-selector/dataSele
 import { intersectionConfigSlice } from './features/api/intersectionConfigSlice'
 import { intersectionMapApiSlice } from './features/api/intersectionMapApiSlice'
 import { intersectionMapApiMiddleware } from './features/api/intersection-map-api-middleware'
-import { intersectionApiSlice } from './features/api/intersectionApiSlice'
 import { organizationApiSlice } from './features/api/organizationApiSlice'
 import { rsuCountsApiSlice } from './features/api/rsuCountsApiSlice'
 import { rsuApiSlice } from './features/api/rsuApiSlice'
@@ -68,7 +67,6 @@ export const setupStore = (preloadedState?: Partial<any>) => {
       haas: haasSliceReducer,
       [intersectionConfigSlice.reducerPath]: intersectionConfigSlice.reducer,
       [intersectionMapApiSlice.reducerPath]: intersectionMapApiSlice.reducer,
-      [intersectionApiSlice.reducerPath]: intersectionApiSlice.reducer,
       [organizationApiSlice.reducerPath]: organizationApiSlice.reducer,
       [rsuCountsApiSlice.reducerPath]: rsuCountsApiSlice.reducer,
       [rsuApiSlice.reducerPath]: rsuApiSlice.reducer,
@@ -83,7 +81,6 @@ export const setupStore = (preloadedState?: Partial<any>) => {
         .concat(intersectionConfigSlice.middleware)
         .concat(intersectionMapApiSlice.middleware)
         .concat(intersectionMapApiMiddleware.middleware)
-        .concat(intersectionApiSlice.middleware)
         .concat(organizationApiSlice.middleware)
         .concat(rsuCountsApiSlice.middleware)
         .concat(rsuApiSlice.middleware),
