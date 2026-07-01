@@ -4,6 +4,7 @@ import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import { styled, useTheme } from '@mui/material/styles'
 import { selectMapLegendColors } from './map-layer-style-slice'
 import { useSelector } from 'react-redux'
+import MapFabTab from './map-fab-tab'
 import { Close, ExpandMoreOutlined, FormatListBulleted } from '@mui/icons-material'
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
@@ -241,6 +242,178 @@ export const MapLegend = (props: MapLegendProps) => {
     )
   }
 
+  const content = (
+    <Box
+      sx={{
+        maxHeight: '600px',
+        overflow: 'auto',
+        scrollbarColor: `${theme.palette.text.primary} ${theme.palette.background.paper}`,
+        borderRadius: '4px',
+      }}
+    >
+      <Accordion
+        sx={{
+          '& .Mui-expanded': {
+            backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
+          },
+        }}
+        disableGutters
+      >
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography fontSize="16px">Signal Heads</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {signalHeadIconsList}
+          </div>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion
+        sx={{
+          '& .Mui-expanded': {
+            backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
+          },
+        }}
+        disableGutters
+      >
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography fontSize="16px">Lane Lines</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {laneColorsList}
+          </div>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion
+        sx={{
+          '& .Mui-expanded': {
+            backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
+          },
+        }}
+        disableGutters
+      >
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography fontSize="16px">Lane Connections</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {travelConnectionColorsList}
+          </div>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion
+        sx={{
+          '& .Mui-expanded': {
+            backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
+          },
+        }}
+        disableGutters
+      >
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography fontSize="16px">SSM Status Icons</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {ssmStatusIconList}
+          </div>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion
+        sx={{
+          '& .Mui-expanded': {
+            backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
+          },
+        }}
+        disableGutters
+      >
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography fontSize="16px">BSM Colors</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {bsmColorsList}
+          </div>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion
+        sx={{
+          '& .Mui-expanded': {
+            backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
+          },
+        }}
+        disableGutters
+      >
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography fontSize="16px">SRM Vehicles</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {srmColorsList}
+          </div>
+        </AccordionDetails>
+      </Accordion>
+    </Box>
+  )
+
+  return (
+    <MapFabTab
+      title="Legend"
+      width="auto"
+      panelId="map-legend"
+      openPanel={props.openPanel}
+      setOpenPanel={props.setOpenPanel}
+      icon={<FormatListBulleted />}
+      content={content}
+    />
+  )
+
   return (
     <>
       <Fab
@@ -293,163 +466,6 @@ export const MapLegend = (props: MapLegendProps) => {
                   >
                     <Close color="info" />
                   </IconButton>
-                </Box>
-                <Box
-                  sx={{
-                    maxHeight: '600px',
-                    overflow: 'auto',
-                    scrollbarColor: `${theme.palette.text.primary} ${theme.palette.background.paper}`,
-                    borderRadius: '4px',
-                  }}
-                >
-                  <Accordion
-                    sx={{
-                      '& .Mui-expanded': {
-                        backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
-                      },
-                    }}
-                    disableGutters
-                  >
-                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                      <Typography fontSize="16px">Signal Heads</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          overflowY: 'auto',
-                          justifyContent: 'flex-start',
-                        }}
-                      >
-                        {signalHeadIconsList}
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
-
-                  <Accordion
-                    sx={{
-                      '& .Mui-expanded': {
-                        backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
-                      },
-                    }}
-                    disableGutters
-                  >
-                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                      <Typography fontSize="16px">Lane Lines</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          overflowY: 'auto',
-                          justifyContent: 'flex-start',
-                        }}
-                      >
-                        {laneColorsList}
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
-
-                  <Accordion
-                    sx={{
-                      '& .Mui-expanded': {
-                        backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
-                      },
-                    }}
-                    disableGutters
-                  >
-                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                      <Typography fontSize="16px">Lane Connections</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          overflowY: 'auto',
-                          justifyContent: 'flex-start',
-                        }}
-                      >
-                        {travelConnectionColorsList}
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
-                  <Accordion
-                    sx={{
-                      '& .Mui-expanded': {
-                        backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
-                      },
-                    }}
-                    disableGutters
-                  >
-                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                      <Typography fontSize="16px">SSM Status Icons</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          overflowY: 'auto',
-                          justifyContent: 'flex-start',
-                        }}
-                      >
-                        {ssmStatusIconList}
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
-
-                  <Accordion
-                    sx={{
-                      '& .Mui-expanded': {
-                        backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
-                      },
-                    }}
-                    disableGutters
-                  >
-                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                      <Typography fontSize="16px">BSM Colors</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          overflowY: 'auto',
-                          justifyContent: 'flex-start',
-                        }}
-                      >
-                        {bsmColorsList}
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
-
-                  <Accordion
-                    sx={{
-                      '& .Mui-expanded': {
-                        backgroundColor: theme.palette.custom.intersectionMapAccordionExpanded,
-                      },
-                    }}
-                    disableGutters
-                  >
-                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                      <Typography fontSize="16px">SRM Vehicles</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          overflowY: 'auto',
-                          justifyContent: 'flex-start',
-                        }}
-                      >
-                        {srmColorsList}
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
                 </Box>
               </Box>
             </Paper>
