@@ -125,7 +125,7 @@ export const SidePanel = (props: SidePanelProps) => {
     }
   }
 
-  const getSrmImportanceLevel = (level: ProcessedRequestImportanceLevel): string => {
+  const getSrmImportanceLevel = (level: ProcessedRequestImportanceLevel | undefined): string => {
     if (level?.includes('requestImportanceLevel')) {
       return level.replace('requestImportanceLevel', '')
     } else if (level === 'requestImportanceLevelUnKnown') {
@@ -197,7 +197,8 @@ export const SidePanel = (props: SidePanelProps) => {
       // Find matching SSM by requesterSequenceNumber, or use latest if none match
       let matchingSsm = ssms.find((s) => s.requestInfo.requesterSequenceNumber === srm.sequenceNumber)
       if (!matchingSsm) {
-        matchingSsm = ssms.sort((a, b) => (b.sequenceNumber ?? 0) - (a.sequenceNumber ?? 0))[0]
+          const sortedSsms = ssms.toSorted((a, b) => (b.sequenceNumber ?? 0) - (a.sequenceNumber ?? 0))
+          matchingSsm = sortedSsms[0]
       }
       rows.push([`  SSM Status (seq ${matchingSsm.requestInfo.requesterSequenceNumber})`, matchingSsm.status])
     }

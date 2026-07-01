@@ -429,6 +429,18 @@ export const sortSrmInfo = (srms: SrmInfo[]): SrmInfo[] => {
   })
 }
 
+const extractMatchingSsmStatuses = (statuses: ProcessedSignalStatus[], requests: ProcessedSignalRequest[]) => {
+  const matchingStatuses: ProcessedSignalStatus[] = []
+  statuses?.forEach((status) => {
+    requests?.forEach((request) => {
+      if (request.requestID == status.requestID) {
+        matchingStatuses.push(status)
+      }
+    })
+  })
+  return matchingStatuses
+}
+
 export const addSsmStatus = (
   srmData: ProcessedSrmFeature[],
   ssmData: ProcessedSsm[]
@@ -437,15 +449,8 @@ export const addSsmStatus = (
     // Find matching SSM by vehicle ID
     let matchingSsms: ProcessedSsm[] = []
     ssmData.forEach((ssm) => {
-      const matchingStatuses = []
-      ssm.statusList?.forEach((status) => {
-        srm.properties.requests?.forEach((request) => {
-          if (request.requestID == status.requestID) {
-            matchingStatuses.push(status)
-          }
-        })
-      })
-      if (matchingStatuses) {
+      const matchingStatuses = extractMatchingSsmStatuses(ssm.statusList ?? [], srm.properties.requests ?? [])
+      if (matchingStatuses.length > 0) {
         matchingSsms.push({ ...ssm, statusList: matchingStatuses } as ProcessedSsm)
       }
     })

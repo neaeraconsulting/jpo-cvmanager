@@ -112,7 +112,7 @@ export const getTimestamp = (dt: any): number => {
   }
 }
 
-const EMPTY_FEATURE_COLLECTION = { type: 'FeatureCollection' as 'FeatureCollection', features: [] }
+const EMPTY_FEATURE_COLLECTION = { type: 'FeatureCollection' as const, features: [] }
 
 const IntersectionMap = (props: MAP_PROPS) => {
   const dispatch: ThunkDispatch<RootState, void, AnyAction> = useDispatch()
@@ -304,7 +304,7 @@ const IntersectionMap = (props: MAP_PROPS) => {
     const srmLayerStyle = generateMapboxStyleExpression(colors, 'vehicleID')
     dispatch(setSrmCircleColor(srmLayerStyle))
     return {
-      type: 'FeatureCollection' as 'FeatureCollection',
+      type: 'FeatureCollection' as const,
       features: srmFeatures,
     }
   }, [activeSrmData, activeSsmData])
@@ -314,8 +314,7 @@ const IntersectionMap = (props: MAP_PROPS) => {
     if (connectingLanes && currentSignalGroups && mapData?.mapFeatureCollection) {
       connections = addConnections(connectingLanes, currentSignalGroups, mapData.mapFeatureCollection)
     }
-    let srmSsmConnections: ConnectingLanesFeatureCollectionWithSsmSrm = EMPTY_FEATURE_COLLECTION
-    srmSsmConnections = addSsmSrmToConnections(connections, activeSsmData, activeSrmData)
+    let srmSsmConnections = addSsmSrmToConnections(connections, activeSsmData, activeSrmData)
     const srmSsmOnlyConnections = {
       ...srmSsmConnections,
       features: srmSsmConnections.features
@@ -403,7 +402,7 @@ const IntersectionMap = (props: MAP_PROPS) => {
 
   useEffect(() => {
     const map = mapRef.current?.getMap()
-    if (!map || !map.isStyleLoaded()) return
+    if (!map?.isStyleLoaded()) return
 
     Object.entries(layersVisible).forEach(([layerKey, isVisible]) => {
       if (map.getLayer(layerKey)) {

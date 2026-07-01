@@ -12,7 +12,7 @@ export const getQueryString = (query_params: Record<string, string>) => {
   const filteredQueryParams: Record<string, string> = { ...query_params }
   Object.keys(filteredQueryParams).forEach((key) => query_params[key] === undefined && delete query_params[key])
   const queryString = new URLSearchParams(query_params).toString()
-  return `${queryString ? `?${queryString}` : ''}`
+  return queryString ? `?${queryString}` : ''
 }
 
 // Define a service using a base URL and expected endpoints

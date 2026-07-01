@@ -9,6 +9,7 @@ import {
   addSsmTimestampsAndSortAscending,
 } from '../intersections/map/utilities/message-utils'
 import { MAP_QUERY_PARAMS } from '../intersections/map/map-slice'
+import { getQueryString } from './intersectionConfigSlice'
 
 export type LocationParams = {
   longitude: number
@@ -19,14 +20,6 @@ export type LocationParams = {
 export type TimeWindow = {
   startMillis: number
   endMillis: number
-}
-
-const getQueryString = (query_params: Record<string, string>) => {
-  // filter out undefined values from query params
-  const filteredQueryParams: Record<string, string> = { ...query_params }
-  Object.keys(filteredQueryParams).forEach((key) => query_params[key] === undefined && delete query_params[key])
-  const queryString = new URLSearchParams(query_params).toString()
-  return `${queryString ? `?${queryString}` : ''}`
 }
 
 // Define a service using a base URL and expected endpoints

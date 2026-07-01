@@ -353,8 +353,6 @@ export const pullInitialData = createAsyncThunk(
     let rawMap: ProcessedMap[] = []
     let rawSpat: ProcessedSpat[] = []
     let rawBsmGeojson: BsmFeatureCollection = { type: 'FeatureCollection', features: [] }
-    let rawSsm: ProcessedSsm[] = []
-    let rawSrm: ProcessedSrmFeature[] = []
     let abortController = new AbortController()
     if (decoderModeEnabled) {
       // Use source data loaded from decoder module
@@ -368,8 +366,6 @@ export const pullInitialData = createAsyncThunk(
       rawMap = addMapTimestampsAndSortAscending(localSourceData.map)
       rawSpat = addSpatTimestampsAndSortAscending(localSourceData.spat)
       rawBsmGeojson = addBsmTimestampsAndSortAscending(localSourceData.bsm)
-      rawSsm = addSsmTimestampsAndSortAscending(localSourceData.ssm)
-      rawSrm = addSrmTimestampsAndSortAscending(localSourceData.srm)
       if (rawSpat && rawSpat.length != 0 && rawMap && rawMap.length != 0) {
         const sortedSpatData = rawSpat.sort((x, y) => x.utcTimeStamp - y.utcTimeStamp)
         const startTime = new Date(sortedSpatData[0].utcTimeStamp)
@@ -448,8 +444,6 @@ export const pullInitialData = createAsyncThunk(
       rawMap = [...importedMessageData.mapData]
       rawSpat = [...importedMessageData.spatData].sort((a, b) => a.utcTimeStamp - b.utcTimeStamp)
       rawBsmGeojson = importedMessageData.bsmData
-      rawSsm = [...importedMessageData.ssmData]
-      rawSrm = [...importedMessageData.srmData]
     }
 
     if (decoderModeEnabled) {

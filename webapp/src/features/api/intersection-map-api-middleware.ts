@@ -8,8 +8,7 @@ export const intersectionMapApiMiddleware = createListenerMiddleware()
 intersectionMapApiMiddleware.startListening({
   matcher: intersectionMapApiSlice.endpoints.getSsmWithinTimeWindow.matchFulfilled,
   effect: (action, listenerApi) => {
-    const { payload: ssmData, meta } = action
-    const { arg: queryArgs } = meta
+    const { payload: ssmData } = action
 
     listenerApi.dispatch(setCurrentSsmData(ssmData))
   },
@@ -19,8 +18,7 @@ intersectionMapApiMiddleware.startListening({
 intersectionMapApiMiddleware.startListening({
   matcher: intersectionMapApiSlice.endpoints.getSrmWithinTimeWindow.matchFulfilled,
   effect: (action, listenerApi) => {
-    const { payload: srmData, meta } = action
-    const { arg: queryArgs } = meta
+    const { payload: srmData } = action
 
     listenerApi.dispatch(setCurrentSrmData(srmData))
   },

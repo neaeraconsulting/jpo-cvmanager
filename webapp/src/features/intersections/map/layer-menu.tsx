@@ -51,9 +51,6 @@ function LayerMenu(props: LayerMenuProps) {
     const isLayerVisible = layersVisible[layerId]
     const isLabelVisible = labelLayerId ? layersVisible[labelLayerId] : undefined
 
-    // Calculate z-order based on position in LAYER_RENDER_ORDER
-    const zOrder = LAYER_RENDER_ORDER.indexOf(layerId as any) + 1
-
     return (
       <Box
         key={layerId}

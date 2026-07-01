@@ -21,9 +21,9 @@ const hexToFilter = (hex: string): string => {
   hex = hex.replace('#', '')
 
   // Convert hex to RGB (0-255)
-  const r = parseInt(hex.substring(0, 2), 16)
-  const g = parseInt(hex.substring(2, 4), 16)
-  const b = parseInt(hex.substring(4, 6), 16)
+  const r = Number.parseInt(hex.substring(0, 2), 16)
+  const g = Number.parseInt(hex.substring(2, 4), 16)
+  const b = Number.parseInt(hex.substring(4, 6), 16)
 
   // Check if it's a grey color (R ≈ G ≈ B)
   const isGrey = Math.abs(r - g) < 5 && Math.abs(g - b) < 5 && Math.abs(r - b) < 5

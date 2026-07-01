@@ -79,7 +79,8 @@ export const getSelectedLayerPopupContent = (feature: any) => {
         const ssms: SsmInfo[] = ssmResponseDict[ssmKey]
         if (ssms) {
           // Find matching SSM by requesterSequenceNumber, or use latest if none match
-          let matchingSsm = ssms.sort((a, b) => (b.sequenceNumber ?? 0) - (a.sequenceNumber ?? 0))[0]
+          const sortedSsms = ssms.toSorted((a, b) => (b.sequenceNumber ?? 0) - (a.sequenceNumber ?? 0))
+          const matchingSsm = sortedSsms[0]
           rows.push([`  SSM Status (seq ${matchingSsm.requestInfo.requesterSequenceNumber})`, matchingSsm.status])
         }
       })
@@ -128,7 +129,8 @@ export const getSelectedLayerPopupContent = (feature: any) => {
         const ssms: SsmInfo[] = ssmResponseDict[ssmKey]
         if (ssms) {
           // Find matching SSM by requesterSequenceNumber, or use latest if none match
-          let matchingSsm = ssms.sort((a, b) => (b.sequenceNumber ?? 0) - (a.sequenceNumber ?? 0))[0]
+          const sortedSsms = ssms.toSorted((a, b) => (b.sequenceNumber ?? 0) - (a.sequenceNumber ?? 0))
+          const matchingSsm = sortedSsms[0]
           rows.push([`  SSM Status (seq ${matchingSsm.requestInfo.requesterSequenceNumber})`, matchingSsm.status])
         }
       })
