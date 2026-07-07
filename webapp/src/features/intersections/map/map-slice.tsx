@@ -486,8 +486,8 @@ export const pullInitialData = createAsyncThunk(
       dispatch(getBsmDailyCounts())
       dispatch(getSurroundingEvents())
       dispatch(getSurroundingNotifications())
-      rawSsm = await fetchSsmWithinTimeWindow(queryParams, dispatch)
-      rawSrm = await fetchSrmWithinTimeWindow(queryParams, dispatch)
+      await fetchSsmWithinTimeWindow(queryParams, dispatch)
+      await fetchSrmWithinTimeWindow(queryParams, dispatch)
 
       // ######################### Retrieve SPAT Data #########################
       abortController = new AbortController()
