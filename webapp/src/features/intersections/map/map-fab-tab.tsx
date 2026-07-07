@@ -2,9 +2,10 @@ import { Box, Fab, IconButton, Paper, Typography, useTheme } from '@mui/material
 import { Close } from '@mui/icons-material'
 
 type MapFabTabProps = {
-    title: string
-    width: string | number
-    panelId: string
+  title: string
+  width: string | number
+  right: any
+  panelId: string
   openPanel: string
   setOpenPanel: (panel: string) => void
   icon: JSX.Element
@@ -33,7 +34,7 @@ function MapFabTab(props: MapFabTabProps) {
           position: 'absolute',
           zIndex: 10,
           top: theme.spacing(3),
-          right: theme.spacing(17),
+          right: props.right,
           backgroundColor: theme.palette.background.paper,
           '&:hover': {
             backgroundColor: theme.palette.custom.intersectionMapButtonHover,

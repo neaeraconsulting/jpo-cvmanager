@@ -1,4 +1,4 @@
-import { Checkbox, Grid2, TextField, Typography } from '@mui/material'
+import { Checkbox, Grid2, TextField, Typography, useTheme } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit'
 import { RootState } from '../../../store'
@@ -26,6 +26,7 @@ type VisualSettingsProps = {
 
 function VisualSettings(props: VisualSettingsProps) {
   const dispatch: ThunkDispatch<RootState, void, AnyAction> = useDispatch()
+  const theme = useTheme()
 
   const signalStateLayerStyle = useSelector(selectSignalStateLayerStyle)
   const laneLabelsVisible = useSelector(selectLaneLabelsVisible)
@@ -104,6 +105,7 @@ function VisualSettings(props: VisualSettingsProps) {
     <MapFabTab
       title="Visual Settings"
       width={600}
+      right={theme.spacing(10)}
       panelId="visual-settings"
       openPanel={props.openPanel}
       setOpenPanel={props.setOpenPanel}

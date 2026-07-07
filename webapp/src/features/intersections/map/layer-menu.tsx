@@ -95,6 +95,7 @@ function LayerMenu(props: LayerMenuProps) {
     <MapFabTab
       title="Map Layers"
       width={300}
+      right={theme.spacing(24)}
       panelId="layer-menu"
       openPanel={props.openPanel}
       setOpenPanel={props.setOpenPanel}

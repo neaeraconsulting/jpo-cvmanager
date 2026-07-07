@@ -1,11 +1,11 @@
-import { Paper, Box, IconButton, Typography, Fab, AccordionSummary, AccordionDetails } from '@mui/material'
+import { Box, Typography, AccordionSummary, AccordionDetails } from '@mui/material'
 import React from 'react'
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import { styled, useTheme } from '@mui/material/styles'
 import { selectMapLegendColors } from './map-layer-style-slice'
 import { useSelector } from 'react-redux'
 import MapFabTab from './map-fab-tab'
-import { Close, ExpandMoreOutlined, FormatListBulleted } from '@mui/icons-material'
+import { ExpandMoreOutlined, FormatListBulleted } from '@mui/icons-material'
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
   () => ({})
@@ -78,14 +78,6 @@ const hexToFilter = (hex: string): string => {
 export const MapLegend = (props: MapLegendProps) => {
   const mapLegendColors = useSelector(selectMapLegendColors)
   const theme = useTheme()
-
-  const toggleOpen = () => {
-    if (props.openPanel === 'map-legend') {
-      props.setOpenPanel('')
-    } else {
-      props.setOpenPanel('map-legend')
-    }
-  }
 
   const { bsmColors, travelConnectionColors, laneColors, signalHeadIcons, ssmStatusIcons, srmColors } = mapLegendColors
 
@@ -406,6 +398,7 @@ export const MapLegend = (props: MapLegendProps) => {
     <MapFabTab
       title="Legend"
       width="auto"
+      right={theme.spacing(17)}
       panelId="map-legend"
       openPanel={props.openPanel}
       setOpenPanel={props.setOpenPanel}
