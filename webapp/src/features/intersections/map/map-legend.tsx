@@ -75,6 +75,26 @@ const hexToFilter = (hex: string): string => {
   }%) hue-rotate(${hue}deg) brightness(${brightnessMultiplier * 100}%)`
 }
 
+const LegendContainer = (props: { key: string; label: string; content: React.ReactNode }) => {
+  return (
+    <React.Fragment key={props.key}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          margin: '5px',
+        }}
+      >
+        {props.content}
+        <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
+          {props.label}
+        </Typography>
+      </div>
+    </React.Fragment>
+  )
+}
+
 export const MapLegend = (props: MapLegendProps) => {
   const mapLegendColors = useSelector(selectMapLegendColors)
   const theme = useTheme()
@@ -84,21 +104,11 @@ export const MapLegend = (props: MapLegendProps) => {
   const bsmColorsList: JSX.Element[] = []
   for (const [key, value] of Object.entries(bsmColors)) {
     bsmColorsList.push(
-      <React.Fragment key={key}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: '5px',
-          }}
-        >
-          <div style={{ height: 20, width: 20, backgroundColor: value as string, borderRadius: '50%' }} />
-          <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
-            {key.toLowerCase()}
-          </Typography>
-        </div>
-      </React.Fragment>
+      <LegendContainer
+        key={key}
+        label={key.toLowerCase()}
+        content={<div style={{ height: 20, width: 20, backgroundColor: value as string }} />}
+      />
     )
   }
 
@@ -110,127 +120,90 @@ export const MapLegend = (props: MapLegendProps) => {
     const heightColored = value[1][0] * heightFactor
     const heightWhite = (value[1].length == 1 ? 0 : value[1][1]) * heightFactor
     travelConnectionColorsList.push(
-      <React.Fragment key={key}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: '5px',
-          }}
-        >
+      <LegendContainer
+        key={key}
+        label={key.toLowerCase()}
+        content={
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ height: heightColored, width: 10, backgroundColor: value[0] }} />
             <div style={{ height: heightWhite, width: 10, backgroundColor: '#ffffff' }} />
             <div style={{ height: heightColored, width: 10, backgroundColor: value[0] }} />
             <div style={{ height: heightWhite, width: 10, backgroundColor: '#ffffff' }} />
           </div>
-          <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
-            {key.toLowerCase()}
-          </Typography>
-        </div>
-      </React.Fragment>
+        }
+      />
     )
   }
 
   const laneColorsList: JSX.Element[] = []
   for (const [key, value] of Object.entries(laneColors)) {
     laneColorsList.push(
-      <React.Fragment key={key}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: '5px',
-          }}
-        >
-          <div style={{ height: 20, width: 20, backgroundColor: value as string }} />
-          <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
-            {key.toLowerCase()}
-          </Typography>
-        </div>
-      </React.Fragment>
+      <LegendContainer
+        key={key}
+        label={key.toLowerCase()}
+        content={<div style={{ height: 20, width: 20, backgroundColor: value as string }} />}
+      />
     )
   }
 
   const signalHeadIconsList: JSX.Element[] = []
   for (const [key, value] of Object.entries(signalHeadIcons)) {
     signalHeadIconsList.push(
-      <React.Fragment key={key}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: '5px',
-          }}
-        >
-          <img src={value as string} style={{ height: 40, width: 30 }} />
-          <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
-            {key.toLowerCase()}
-          </Typography>
-        </div>
-      </React.Fragment>
+      <LegendContainer
+        key={key}
+        label={key.toLowerCase()}
+        content={<img src={value as string} style={{ height: 40, width: 30 }} />}
+      />
     )
   }
 
   const ssmStatusIconList: JSX.Element[] = []
   for (const [key, value] of Object.entries(ssmStatusIcons)) {
     ssmStatusIconList.push(
-      <React.Fragment key={key}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: '5px',
-          }}
-        >
+      <LegendContainer
+        key={key}
+        label={key.toLowerCase()}
+        content={
           <div
             style={{
-              backgroundColor: '#ffffff',
-              padding: '2px',
-              borderRadius: '2px',
-              display: 'inline-flex', // ⚡ Add this to shrink-wrap
-              alignItems: 'center', // ⚡ Add this to center the icon
-              justifyContent: 'center', // ⚡ Add this to center the icon
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              margin: '5px',
             }}
           >
-            <img
-              src={value[0] as string}
+            <div
               style={{
-                width: 20,
-                height: 20,
-                filter: hexToFilter(value[1]),
+                backgroundColor: '#ffffff',
+                padding: '2px',
+                borderRadius: '2px',
+                display: 'inline-flex', // ⚡ Add this to shrink-wrap
+                alignItems: 'center', // ⚡ Add this to center the icon
+                justifyContent: 'center', // ⚡ Add this to center the icon
               }}
-            />
+            >
+              <img
+                src={value[0] as string}
+                style={{
+                  width: 20,
+                  height: 20,
+                  filter: hexToFilter(value[1]),
+                }}
+              />
+            </div>
           </div>
-          <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
-            {key.toLowerCase()}
-          </Typography>
-        </div>
-      </React.Fragment>
+        }
+      />
     )
   }
   const srmColorsList: JSX.Element[] = []
   for (const [key, value] of Object.entries(srmColors)) {
     srmColorsList.push(
-      <React.Fragment key={key}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: '5px',
-          }}
-        >
-          <div style={{ height: 20, width: 20, backgroundColor: value as string }} />
-          <Typography fontSize="14px" sx={{ ml: 1, textTransform: 'capitalize' }}>
-            {key.toLowerCase()}
-          </Typography>
-        </div>
-      </React.Fragment>
+      <LegendContainer
+        key={key}
+        label={key.toLowerCase()}
+        content={<div style={{ height: 20, width: 20, backgroundColor: value as string }} />}
+      />
     )
   }
 
