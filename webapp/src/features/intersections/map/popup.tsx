@@ -62,8 +62,7 @@ export const getSelectedLayerPopupContent = (feature: any) => {
         rows.push([`  Seq Num`, srm.sequenceNumber])
         rows.push([`  Request Type`, request.priorityRequestType])
         if (request.estimatedTimeOfArrival)
-          rows.push([`  Estimated Arrival`, format(request.estimatedTimeOfArrival, 'yyyy-MM-dd HH:mm:ss.SSS')])
-        if (request.inboundLaneID || request.outboundLaneID) {
+          rows.push([`  Estimated Arrival`, format(parseISO(request.estimatedTimeOfArrival), 'yyyy-MM-dd HH:mm:ss.SSS')])
           rows.push(['  Inbound Lane', request.inboundLaneID])
           rows.push(['  Outbound Lane', request.outboundLaneID])
         }
