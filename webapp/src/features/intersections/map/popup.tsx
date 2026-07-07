@@ -101,7 +101,7 @@ export const getSelectedLayerPopupContent = (feature: any) => {
         rows.push(['Connection ID', connectsTo.connectionID])
       })
       const ssmResponses = JSON.parse(map?.signalStatuses ?? '[]') as SsmInfo[]
-      const ssmResponseDict: { [key: number]: SsmInfo[] } = {}
+      const ssmResponseDict: Record<string, SsmInfo[]> = {}
       ssmResponses.forEach((ssm) => {
         const key = ssm.requestInfo.vehicleID + '_' + ssm.requestID
         if (key in ssmResponseDict) {
