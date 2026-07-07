@@ -6,14 +6,10 @@ import { CustomTable } from './custom-table'
 import { format, parseISO } from 'date-fns'
 import { getSsmInfoList } from './utilities/message-utils'
 
-const getSrmImportanceLevel = (level: ProcessedRequestImportanceLevel): string => {
-  if (level?.includes('requestImportanceLevel')) {
-    return level.replace('requestImportanceLevel', '')
-  } else if (level === 'requestImportanceLevelUnKnown') {
-    return 'Unknown'
-  } else {
-    return level
-  }
+const getSrmImportanceLevel = (level?: ProcessedRequestImportanceLevel): string => {
+  if (!level || level === 'requestImportanceLevelUnKnown') return 'Unknown'
+  if (level.startsWith('requestImportanceLevel')) return level.replace('requestImportanceLevel', '')
+  return level
 }
 
 export const getSelectedLayerPopupContent = (feature: any) => {
