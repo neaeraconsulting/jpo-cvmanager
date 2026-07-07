@@ -3,7 +3,7 @@ import { Popup } from 'react-map-gl'
 
 import { Box, Typography } from '@mui/material'
 import { CustomTable } from './custom-table'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { getSsmInfoList } from './utilities/message-utils'
 
 const getSrmImportanceLevel = (level: ProcessedRequestImportanceLevel): string => {
