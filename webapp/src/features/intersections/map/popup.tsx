@@ -48,7 +48,7 @@ export const getSelectedLayerPopupContent = (feature: any) => {
       ]
       // Pre-process SSMs into a dictionary keyed by SRM vehicleID + requestID
       const ssms = (JSON.parse((srm.ssms as unknown as string) ?? '[]') as ProcessedSsm[]).flatMap(getSsmInfoList)
-      const ssmResponseDict: { [key: number]: SsmInfo[] } = {}
+      const ssmResponseDict: Record<string, SsmInfo[]> = {}
       ssms.forEach((ssm) => {
         const key = ssm.requestInfo.vehicleID + '_' + ssm.requestID
         if (key in ssmResponseDict) {
