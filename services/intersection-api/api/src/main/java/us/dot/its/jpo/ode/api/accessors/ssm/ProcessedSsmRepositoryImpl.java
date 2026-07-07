@@ -76,6 +76,7 @@ public class ProcessedSsmRepositoryImpl implements ProcessedSsmRepository, Pagea
         if (compact) {
             excludedFields.add(VALIDATION_MESSAGES_FIELD);
         }
+        excludedFields.forEach(field -> query.fields().exclude(field));
         Sort sort = Sort.by(Sort.Direction.DESC, DATE_FIELD);
         return wrapSingleResultWithPage(
                 mongoTemplate.findOne(
@@ -109,6 +110,6 @@ public class ProcessedSsmRepositoryImpl implements ProcessedSsmRepository, Pagea
             excludedFields.add(VALIDATION_MESSAGES_FIELD);
         }
         Sort sort = Sort.by(Sort.Direction.DESC, DATE_FIELD);
-        return findPage(mongoTemplate, collectionName, pageable, criteria, sort, List.of(), ProcessedSsm.class);
+        return findPage(mongoTemplate, collectionName, pageable, criteria, sort, excludedFields, ProcessedSsm.class);
     }
 }
