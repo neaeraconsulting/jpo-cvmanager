@@ -15,10 +15,7 @@ export const rsuCountsApiSlice = createApi({
       const currentState = getState() as RootState
       const token = selectToken(currentState)
 
-      // Specify endpoints that do not require a token or organization. These names must match the keys in the endpoints object below.
-      const endpointsWithoutToken = []
-
-      if (token && !endpointsWithoutToken.includes(endpoint)) {
+      if (token) {
         headers.set('Authorization', `${token}`)
       }
 

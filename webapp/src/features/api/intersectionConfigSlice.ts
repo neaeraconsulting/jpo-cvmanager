@@ -23,10 +23,7 @@ export const intersectionConfigSlice = createApi({
     prepareHeaders: (headers, { getState, endpoint }) => {
       const token = selectToken(getState() as RootState)
 
-      // Specify endpoints that do not require a token or organization. These names must match the keys in the endpoints object below.
-      const endpointsWithoutToken = []
-
-      if (token && !endpointsWithoutToken.includes(endpoint)) {
+      if (token) {
         headers.set('Authorization', `Bearer ${token}`)
       }
 

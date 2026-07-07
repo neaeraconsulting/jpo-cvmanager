@@ -159,9 +159,9 @@ export const getSelectedLayerPopupContent = (feature: any) => {
         unrespondedSrms = unrespondedSrms.filter((srm) => srm.requestID !== ssm.requestID)
         const vehicleId = ssm.requestInfo?.vehicleID
         if (vehicleId && vehicleId in signalStatuses) {
-            if ((ssm.sequenceNumber ?? 0) > (signalStatuses[vehicleId]?.sequenceNumber ?? 0)) {
-              signalStatuses[vehicleId] = ssm
-            }
+          if ((ssm.sequenceNumber ?? 0) > (signalStatuses[vehicleId]?.sequenceNumber ?? 0)) {
+            signalStatuses[vehicleId] = ssm
+          }
         } else {
           signalStatuses[vehicleId] = ssm
         }
@@ -209,7 +209,6 @@ export const getSelectedLayerPopupContent = (feature: any) => {
       return <Typography sx={{ paddingLeft: 1 }}>{JSON.stringify(feature)}</Typography>
     }
   }
-  return <Typography sx={{ paddingLeft: 1 }}>No Data</Typography>
 }
 
 export const CustomPopup = (props) => {

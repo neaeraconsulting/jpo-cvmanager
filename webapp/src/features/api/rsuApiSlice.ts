@@ -35,9 +35,7 @@ export const rsuApiSlice = createApi({
 
       headers.set('Accept', 'application/json')
 
-      // Endpoint names must match the keys in the endpoints objects below
-      const endpointsWithoutToken = []
-      if (token && !endpointsWithoutToken.includes(endpoint)) {
+      if (token) {
         headers.set('Authorization', `Bearer ${token}`)
       }
 
