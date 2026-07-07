@@ -146,18 +146,13 @@ export const getSelectedLayerPopupContent = (feature: any) => {
         ['Egress Lane', feature.properties.egressLaneId],
         ['Signal Group', feature.properties.signalGroupId],
       ]
-      let unrespondedSrms = JSON.parse(map?.signalRequests ?? '[]') as SrmInfo[]
-
       // Get latest SSMs, one per vehicleID
-      let signalStatuses = {}
+      const signalStatuses: Record<string, SsmInfo> = {}
       JSON.parse(map?.signalStatuses ?? '[]').forEach((ssm: SsmInfo) => {
-        unrespondedSrms = unrespondedSrms.filter((srm) => srm.requestID !== ssm.requestID)
         const vehicleId = ssm.requestInfo?.vehicleID
-        if (vehicleId && vehicleId in signalStatuses) {
-          if ((ssm.sequenceNumber ?? 0) > (signalStatuses[vehicleId]?.sequenceNumber ?? 0)) {
-            signalStatuses[vehicleId] = ssm
-          }
-        } else {
+        if (!vehicleId) return
+        const existing = signalStatuses[vehicleId]
+        if (!existing || (ssm.sequenceNumber ?? 0) > (existing.sequenceNumber ?? 0)) {
           signalStatuses[vehicleId] = ssm
         }
       })
