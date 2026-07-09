@@ -31,6 +31,7 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
 
     private final String collectionName = "ProcessedSrm";
     private final String DATE_FIELD = "properties.timeStamp";
+    private final String REQUEST_INTERSECTION_ID_FIELD = "properties.requests.intersectionId";
     private final String VEHICLE_ID_FIELD = "properties.vehicleID";
     private final String LONGITUDE_FIELD = "geometry.coordinates.0";
     private final String LATITUDE_FIELD = "geometry.coordinates.1";
@@ -135,8 +136,7 @@ public class ProcessedSrmRepositoryImpl implements ProcessedSrmRepository, Pagea
                 .whereOptional(VEHICLE_ID_FIELD, vehicleId)
                 .withinTimeWindow(DATE_FIELD, startTime, endTime, true);
         if (intersectionID != null) {
-            criteria = criteria.and("properties.requests")
-                    .elemMatch(Criteria.where("intersectionId").is(intersectionID));
+            criteria = criteria.and(REQUEST_INTERSECTION_ID_FIELD).is(intersectionID);
         }
         Query query = Query.query(criteria);
         return mongoTemplate.count(query, Map.class, collectionName);

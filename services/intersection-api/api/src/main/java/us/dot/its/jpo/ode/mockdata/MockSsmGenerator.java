@@ -34,7 +34,7 @@ public class MockSsmGenerator {
         } catch (JsonProcessingException e) {
             log.error("JsonProcessingException", e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            log.error("IOException", e);
             e.printStackTrace();
         }
         return ssms;
@@ -56,7 +56,7 @@ public class MockSsmGenerator {
         } catch (JsonProcessingException e) {
             log.error("JsonProcessingException", e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            log.error("IOException", e);
             e.printStackTrace();
         }
         return ssms;
