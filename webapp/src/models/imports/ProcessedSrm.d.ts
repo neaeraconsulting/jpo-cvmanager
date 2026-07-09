@@ -170,16 +170,6 @@ type ProcessedVehicleType =
   | 'axleCnt6MultiTrailer'
   | 'axleCnt7MultiTrailer'
 
-type ProcessedTransmissionState =
-  | 'neutral'
-  | 'park'
-  | 'forwardGears'
-  | 'reverseGears'
-  | 'reserved1'
-  | 'reserved2'
-  | 'reserved3'
-  | 'unavailable'
-
 type ProcessedTransitVehicleStatus = 'loading' | 'anADAuse' | 'aBikeLoad' | 'doorOpen' | 'charging' | 'atStopLine'
 
 type ProcessedTransitVehicleOccupancy =

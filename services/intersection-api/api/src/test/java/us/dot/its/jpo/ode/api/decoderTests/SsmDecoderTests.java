@@ -36,6 +36,7 @@ public class SsmDecoderTests {
     private String odeSsmDecodedXmlReference = "";
     private String odeSsmDecodedJsonReference = "";
     private String processedSsmReference = "";
+    private String odeReceivedAt = "2025-08-29T16:09:34.416Z";
 
     ObjectMapper objectMapper;
 
@@ -73,7 +74,7 @@ public class SsmDecoderTests {
         try {
             OdeMessageFrameData ssm = ssmDecoder.convertXERToMessageFrame(odeSsmDecodedXmlReference);
 
-            ssm.getMetadata().setOdeReceivedAt("2025-08-29T16:09:34.416Z");
+            ssm.getMetadata().setOdeReceivedAt(odeReceivedAt);
             ssm.getMetadata()
                     .setSerialId(ssm.getMetadata().getSerialId().setStreamId("44a6d71c-8af1-4f45-848c-10bd7f919be8"));
 
@@ -96,11 +97,11 @@ public class SsmDecoderTests {
 
             ObjectMapper objectMapper = DateJsonMapper.getInstance();
 
-            ssmMessageFrame.getMetadata().setOdeReceivedAt("2025-08-29T16:09:34.416Z");
+            ssmMessageFrame.getMetadata().setOdeReceivedAt(odeReceivedAt);
 
             ProcessedSsm ssm = ssmDecoder.convertMessageFrameToProcessedSsm(ssmMessageFrame);
 
-            ssm.setOdeReceivedAt(ZonedDateTime.parse("2025-08-29T16:09:34.416Z"));
+            ssm.setOdeReceivedAt(ZonedDateTime.parse(odeReceivedAt));
 
             String convertedString = objectMapper.writeValueAsString(ssm).replaceAll("\n", "").replaceAll(" ", "");
 

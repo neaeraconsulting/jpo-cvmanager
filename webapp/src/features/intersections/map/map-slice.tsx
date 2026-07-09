@@ -206,15 +206,14 @@ export const generateQueryParams = (
   sourceDataType: MAP_PROPS['sourceDataType'],
   decoderModeEnabled: boolean
 ) => {
-  const startOffset = 1000 * 60 * 1
-  const endOffset = 1000 * 60 * 1
+  const offset = 1000 * 60 * 1
 
   switch (sourceDataType) {
     case 'notification': {
       const notification = source as MessageMonitor.Notification
       return {
-        startDate: new Date(notification.notificationGeneratedAt - startOffset),
-        endDate: new Date(notification.notificationGeneratedAt + endOffset),
+        startDate: new Date(notification.notificationGeneratedAt - offset),
+        endDate: new Date(notification.notificationGeneratedAt + offset),
         eventDate: new Date(notification.notificationGeneratedAt),
         vehicleId: undefined,
         isDefault: false,
@@ -223,8 +222,8 @@ export const generateQueryParams = (
     case 'event': {
       const event = source as MessageMonitor.Event
       return {
-        startDate: new Date(event.eventGeneratedAt - startOffset),
-        endDate: new Date(event.eventGeneratedAt + endOffset),
+        startDate: new Date(event.eventGeneratedAt - offset),
+        endDate: new Date(event.eventGeneratedAt + offset),
         eventDate: new Date(event.eventGeneratedAt),
         vehicleId: undefined,
         isDefault: false,
@@ -233,8 +232,8 @@ export const generateQueryParams = (
     case 'assessment': {
       const assessment = source as Assessment
       return {
-        startDate: new Date(assessment.assessmentGeneratedAt - startOffset),
-        endDate: new Date(assessment.assessmentGeneratedAt + endOffset),
+        startDate: new Date(assessment.assessmentGeneratedAt - offset),
+        endDate: new Date(assessment.assessmentGeneratedAt + offset),
         eventDate: new Date(assessment.assessmentGeneratedAt),
         vehicleId: undefined,
         isDefault: false,
@@ -243,8 +242,8 @@ export const generateQueryParams = (
     case 'timestamp': {
       const ts = (source as timestamp).timestamp
       return {
-        startDate: new Date(ts - startOffset),
-        endDate: new Date(ts + endOffset),
+        startDate: new Date(ts - offset),
+        endDate: new Date(ts + offset),
         eventDate: new Date(ts),
         vehicleId: undefined,
         isDefault: false,
@@ -272,8 +271,8 @@ export const generateQueryParams = (
         }
       }
       return {
-        startDate: new Date(Date.now() - startOffset),
-        endDate: new Date(Date.now() + endOffset),
+        startDate: new Date(Date.now() - offset),
+        endDate: new Date(Date.now() + offset),
         eventDate: new Date(Date.now()),
         vehicleId: undefined,
         isDefault: true,
@@ -285,12 +284,11 @@ export const updateQueryParamsActionFromTimestamp = createAction(
   'intersectionMap/updateQueryParamsActionFromTimestamp',
   (args: { intersectionId: number; tsMillis: number }) => {
     const { intersectionId, tsMillis } = args
-    const startOffset = 1000 * 60 * 1
-    const endOffset = 1000 * 60 * 1
+    const offset = 1000 * 60 * 1
     return {
       payload: {
-        startDate: new Date(tsMillis - startOffset),
-        endDate: new Date(tsMillis + endOffset),
+        startDate: new Date(tsMillis - offset),
+        endDate: new Date(tsMillis + offset),
         eventDate: new Date(tsMillis),
         vehicleId: undefined,
         intersectionId: intersectionId,
@@ -1295,7 +1293,7 @@ export const downloadMapData = createAsyncThunk(
 
     const spatData = selectCurrentSpatData(currentState)
     const mapData = selectCurrentMapData(currentState)
-    const bsmData = selectBsmData(currentState) // not current, that is something else
+    const bsmData = selectBsmData(currentState)
     const ssmData = selectCurrentSsmData(currentState)
     const srmData = selectCurrentSrmData(currentState)
 

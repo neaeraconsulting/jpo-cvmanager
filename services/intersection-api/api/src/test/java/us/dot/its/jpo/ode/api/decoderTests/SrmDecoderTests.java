@@ -37,6 +37,7 @@ public class SrmDecoderTests {
     private String odeSrmDecodedXmlReference = "";
     private String odeSrmDecodedJsonReference = "";
     private String processedSrmReference = "";
+    private String odeReceivedAt = "2025-08-29T16:09:34.416Z";
 
     ObjectMapper objectMapper;
 
@@ -75,7 +76,7 @@ public class SrmDecoderTests {
         try {
             OdeMessageFrameData srm = srmDecoder.convertXERToMessageFrame(odeSrmDecodedXmlReference);
 
-            srm.getMetadata().setOdeReceivedAt("2025-08-29T16:09:34.416Z");
+            srm.getMetadata().setOdeReceivedAt(odeReceivedAt);
             srm.getMetadata()
                     .setSerialId(srm.getMetadata().getSerialId().setStreamId("44a6d71c-8af1-4f45-848c-10bd7f919be8"));
 
@@ -96,11 +97,11 @@ public class SrmDecoderTests {
             OdeMessageFrameData srmMessageFrame = objectMapper.readValue(odeSrmDecodedJsonReference,
                     OdeMessageFrameData.class);
 
-            srmMessageFrame.getMetadata().setOdeReceivedAt("2025-08-29T16:09:34.416Z");
+            srmMessageFrame.getMetadata().setOdeReceivedAt(odeReceivedAt);
 
             ProcessedSrm srm = srmDecoder.convertMessageFrameToProcessedSrm(srmMessageFrame);
 
-            srm.getProperties().setOdeReceivedAt(ZonedDateTime.parse("2025-08-29T16:09:34.416Z"));
+            srm.getProperties().setOdeReceivedAt(ZonedDateTime.parse(odeReceivedAt));
 
             assertEquals(srm.toString().replaceAll("\n", "").replaceAll(" ", ""), processedSrmReference);
         } catch (JsonProcessingException e) {

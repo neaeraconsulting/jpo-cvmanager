@@ -27,7 +27,6 @@ const mapMessageLabelsLayer: SymbolLayer = {
     'text-field': ['concat', '#', ['to-string', ['get', 'laneId']]],
     'text-size': 20,
     'text-font': ['literal', ['Open Sans Bold', 'Arial Unicode MS Bold']],
-    // 'text-variable-anchor': ['top', 'left', 'right', 'bottom'],
     'text-allow-overlap': true,
     'icon-allow-overlap': true,
   },
@@ -150,23 +149,11 @@ const connectingLanesSsmStatusLayer: SymbolLayer = {
     'symbol-placement': 'line-center',
     'icon-allow-overlap': true,
     'icon-ignore-placement': true,
-    'text-allow-overlap': true, // ⚡ Add this
-    'text-ignore-placement': true, // ⚡ Add this
-    'icon-optional': false, // ⚡ Always show icon
+    'text-allow-overlap': true,
+    'text-ignore-placement': true,
+    'icon-optional': false,
     'icon-rotation-alignment': 'viewport',
-    'icon-size': [
-      'interpolate',
-      ['linear'],
-      ['zoom'],
-      10,
-      0.003, // ⚡ Scale with zoom instead of fixed 0.1
-      14,
-      0.05,
-      18,
-      0.08,
-      22,
-      0.12,
-    ],
+    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.003, 14, 0.05, 18, 0.08, 22, 0.12],
   },
   paint: {
     'icon-color': [
@@ -211,7 +198,6 @@ const connectingLanesLabelsLayer: SymbolLayer = {
     'text-size': 20,
     'text-offset': [0, 1],
     'text-font': ['literal', ['Open Sans Bold', 'Arial Unicode MS Bold']],
-    // 'text-variable-anchor': ['top', 'left', 'right', 'bottom'],
     'text-allow-overlap': true,
     'icon-allow-overlap': true,
     'icon-image': 'rounded',
