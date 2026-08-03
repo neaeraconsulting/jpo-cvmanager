@@ -89,7 +89,7 @@ export const rsuApiSlice = createApi({
           rsu_ip: rsuIp,
         })}`,
         method: 'PATCH',
-        body: { origin_ip: rsuIp, ...patch },
+        body: { ip: rsuIp, ...patch },
       }),
       invalidatesTags: (result, error, { rsuIp }) => [
         { type: RSU_API_RSU_TAG, id: rsuIp },
