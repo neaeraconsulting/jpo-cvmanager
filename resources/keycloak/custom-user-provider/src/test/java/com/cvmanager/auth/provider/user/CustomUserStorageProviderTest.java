@@ -320,7 +320,7 @@ GROUP BY
         RealmModel realmModel = mock(RealmModel.class);
         ComponentModel model = mock(ComponentModel.class);
 
-        String expectedQuery = "insert into public.users (email, keycloak_id, created_timestamp) values (?, ?::UUID, ?)";
+        String expectedQuery = "insert into public.users (email, first_name, last_name, keycloak_id, created_timestamp) values (?, ?, ?, ?::UUID, ?) returning keycloak_id, user_id, email, first_name, last_name, created_timestamp, super_user";
 
         try (MockedStatic<CustomUserStorageProvider> mockedStatic = Mockito.mockStatic(CustomUserStorageProvider.class)) {
             Connection connection = mock(Connection.class);
@@ -333,12 +333,12 @@ GROUP BY
             when(resultSet.getString("keycloak_id")).thenReturn("keycloak_id");
             when(resultSet.getInt(Constants.USER_ID_KEY)).thenReturn(1);
             when(resultSet.getString(Constants.EMAIL_KEY)).thenReturn("email");
-            when(resultSet.getString(Constants.FIRST_NAME_KEY)).thenReturn(null);
-            when(resultSet.getString(Constants.LAST_NAME_KEY)).thenReturn(null);
+            when(resultSet.getString(Constants.FIRST_NAME_KEY)).thenReturn("");
+            when(resultSet.getString(Constants.LAST_NAME_KEY)).thenReturn("");
             when(resultSet.getLong(Constants.CREATED_TIMESTAMP_KEY)).thenReturn(now);
             when(resultSet.getInt(Constants.SUPER_USER_KEY)).thenReturn(0);
             when(resultSet.next()).thenReturn(true);
-            when(preparedStatement.getGeneratedKeys()).thenReturn(resultSet);
+            when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
             CustomUserStorageProvider customUserStorageProvider = new CustomUserStorageProvider(keycloakSession, model);
             UserAdapter response = customUserStorageProvider.addUser(realmModel, username);

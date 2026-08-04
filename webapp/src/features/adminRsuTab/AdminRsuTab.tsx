@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import AdminAddRsu from '../adminAddRsu/AdminAddRsu'
 import AdminEditRsu, { AdminEditRsuFormType } from '../adminEditRsu/AdminEditRsu'
 import AdminTable, { buildAdminTableQueryParams } from '../../components/AdminTable'
@@ -23,6 +23,7 @@ import {
   useDeleteMultipleRsusMutation,
   useGetAllRsusQuery,
 } from '../api/rsuApiSlice'
+import { useAdminTableQuerySync } from '../../hooks/useAdminTableQuerySync'
 
 const AdminRsuTab = () => {
   const navigate = useNavigate()
@@ -45,9 +46,13 @@ const AdminRsuTab = () => {
   const { data: subscribedData } = useGetAllRsusQuery(currentParams, {
     skip: !organization,
   })
-
-  const currentQueryRef = useRef<any>(null)
-  const lastRenderedDataSignatureRef = useRef<string | null>(null)
+  const { currentQueryRef, markTableRenderedData, handleRefresh } = useAdminTableQuerySync({
+    organization,
+    tableRef,
+    isRefreshing,
+    currentPage: currentParams.page,
+    subscribedData,
+  })
 
   const [deleteRsuApi] = useDeleteRsuMutation()
   const [deleteMultipleRsusApi] = useDeleteMultipleRsusMutation()
@@ -104,13 +109,6 @@ const AdminRsuTab = () => {
   const handleStatusDialogClose = () => {
     setStatusDialogOpen(false)
     setSelectedRsuIp(null)
-  }
-
-  // const loading = useSelector(selectLoading)
-  const handleRefresh = () => {
-    if (tableRef.current && tableRef.current.onQueryChange) {
-      tableRef.current.onQueryChange()
-    }
   }
 
   const tableActions: Action<AdminEditRsuFormType>[] = [
@@ -217,12 +215,7 @@ const AdminRsuTab = () => {
 
         // Trigger the query and await the result
         const result = await trigger(params).unwrap()
-        lastRenderedDataSignatureRef.current = JSON.stringify({
-          page: params.page,
-          organization: params.organization,
-          totalCount: result.totalElements || 0,
-          content: result.content || [],
-        })
+        markTableRenderedData(params, result)
 
         return {
           data: result.content || [],
@@ -241,27 +234,8 @@ const AdminRsuTab = () => {
         setIsRefreshing(false)
       }
     },
-    [trigger, organization]
+    [trigger, organization, markTableRenderedData]
   )
-
-  useEffect(() => {
-    if (!subscribedData || !tableRef.current?.onQueryChange || isRefreshing) {
-      return
-    }
-
-    const nextSignature = JSON.stringify({
-      page: currentParams.page,
-      organization: organization,
-      totalCount: subscribedData.totalElements || 0,
-      content: subscribedData.content || [],
-    })
-
-    // Avoid feedback loops: refresh only when cache updates differ from what the table already rendered.
-    if (lastRenderedDataSignatureRef.current !== nextSignature) {
-      lastRenderedDataSignatureRef.current = nextSignature
-      tableRef.current.onQueryChange()
-    }
-  }, [subscribedData, organization, currentParams.page, isRefreshing])
 
   const onEdit = (row: AdminEditRsuFormType) => {
     navigate('editRsu/' + row.ip)

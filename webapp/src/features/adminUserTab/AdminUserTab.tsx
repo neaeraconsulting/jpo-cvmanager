@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import AdminAddUser from '../adminAddUser/AdminAddUser'
 import AdminEditUser from '../adminEditUser/AdminEditUser'
 import AdminTable, { buildAdminTableQueryParams } from '../../components/AdminTable'
@@ -20,6 +20,7 @@ import {
   useGetUsersQuery,
   useLazyGetUsersQuery,
 } from '../api/userApiSlice'
+import { useAdminTableQuerySync } from '../../hooks/useAdminTableQuerySync'
 
 const AdminUserTab = () => {
   const navigate = useNavigate()
@@ -40,9 +41,14 @@ const AdminUserTab = () => {
   const { data: subscribedData } = useGetUsersQuery(currentParams, {
     skip: !organization,
   })
+  const { currentQueryRef, markTableRenderedData, handleRefresh } = useAdminTableQuerySync({
+    organization,
+    tableRef,
+    isRefreshing,
+    currentPage: currentParams.page,
+    subscribedData,
+  })
 
-  const currentQueryRef = useRef<any>(null)
-  const lastRenderedDataSignatureRef = useRef<string | null>(null)
   const handleQueryChange = useCallback(
     async (query) => {
       setIsRefreshing(true)
@@ -64,12 +70,7 @@ const AdminUserTab = () => {
         // Trigger the query and await the result
         const result = await trigger(params).unwrap()
 
-        lastRenderedDataSignatureRef.current = JSON.stringify({
-          page: params.page,
-          organization: params.organization,
-          totalCount: result.totalElements || 0,
-          content: result.content || [],
-        })
+        markTableRenderedData(params, result)
 
         console.log('ADMIN_USER_QUERY', result.content.length)
 
@@ -90,33 +91,8 @@ const AdminUserTab = () => {
         setIsRefreshing(false)
       }
     },
-    [trigger, organization]
+    [trigger, organization, markTableRenderedData]
   )
-
-  useEffect(() => {
-    if (!subscribedData || !tableRef.current?.onQueryChange || isRefreshing) {
-      return
-    }
-
-    const nextSignature = JSON.stringify({
-      page: currentParams.page,
-      organization: organization,
-      totalCount: subscribedData.totalElements || 0,
-      content: subscribedData.content || [],
-    })
-
-    if (lastRenderedDataSignatureRef.current !== nextSignature) {
-      lastRenderedDataSignatureRef.current = nextSignature
-      tableRef.current.onQueryChange()
-    }
-  }, [subscribedData, organization, currentParams.page, isRefreshing])
-
-  const handleRefresh = () => {
-    console.log('Refreshing table data...')
-    if (tableRef.current && tableRef.current.onQueryChange) {
-      tableRef.current.onQueryChange()
-    }
-  }
 
   const [deleteUserApi] = useDeleteUserMutation()
   const [deleteMultipleUsersApi] = useDeleteMultipleUsersMutation()
