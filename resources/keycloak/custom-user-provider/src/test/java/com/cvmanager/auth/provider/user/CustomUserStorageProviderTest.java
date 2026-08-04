@@ -327,7 +327,7 @@ GROUP BY
             mockedStatic.when(() -> CustomUserStorageProvider.getConnection(any())).thenReturn(connection);
 
             PreparedStatement preparedStatement = mock(PreparedStatement.class);
-            when(connection.prepareStatement(anyString(), any(Integer.class))).thenReturn(preparedStatement);
+            when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
 
             ResultSet resultSet = mock(ResultSet.class);
             when(resultSet.getString("keycloak_id")).thenReturn("keycloak_id");
@@ -344,14 +344,16 @@ GROUP BY
             UserAdapter response = customUserStorageProvider.addUser(realmModel, username);
             verify(connection).prepareStatement(expectedQuery, Statement.RETURN_GENERATED_KEYS);
             verify(preparedStatement).setString(1, "email");
-            verify(preparedStatement).setString(eq(2), anyString());
-            verify(preparedStatement).setLong(eq(3), anyLong());
+            verify(preparedStatement).setString(2, "");
+            verify(preparedStatement).setString(3, "");
+            verify(preparedStatement).setString(eq(4), anyString());
+            verify(preparedStatement).setLong(eq(5), anyLong());
             verify(preparedStatement).executeUpdate();
             assertThat(response.getId(), is("keycloak_id"));
             assertThat(response.getUserId(), is(1));
             assertThat(response.getUsername(), is("email"));
-            assertThat(response.getFirstName(), nullValue());
-            assertThat(response.getLastName(), nullValue());
+            assertThat(response.getFirstName(), is(""));
+            assertThat(response.getLastName(), is(""));
             assertThat(response.getCreatedTimestamp(), is(now));
             assertThat(response.getSuperUser(), is(0));
             assertThat(response.getOrganizations(), nullValue());

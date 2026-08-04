@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { act, render } from '@testing-library/react'
 import { useAdminTableQuerySync } from './useAdminTableQuerySync'
+import { vi } from 'vitest'
 
 type SubscribedData = {
   content?: any[]
