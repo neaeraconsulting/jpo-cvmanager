@@ -108,6 +108,9 @@ public class CustomProtocolMapper extends AbstractOIDCProtocolMapper implements 
         }
 
         UserStorageProvider storageProvider = factory.create(session, providerComponent);
+        if (storageProvider == null) {
+            return null;
+        }
         try {
             if (storageProvider instanceof UserLookupProvider userLookupProvider) {
                 return userLookupProvider.getUserByUsername(realm, user.getUsername());

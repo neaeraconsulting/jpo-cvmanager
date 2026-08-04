@@ -289,6 +289,9 @@ public class CustomUserStorageProvider implements UserStorageProvider,
             if (rs.next()) {
                 user = new UserAdapter(ksession, realm, model, UserObject.fromResultSet(rs));
             }
+            else {
+                throw new RuntimeStorageException("Failed to insert user " + username + " into database");
+            }
             return user;
         } catch (SQLException ex) {
             throw new RuntimeStorageException(ex);
