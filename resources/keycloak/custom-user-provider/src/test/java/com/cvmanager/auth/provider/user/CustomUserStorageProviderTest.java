@@ -342,7 +342,7 @@ GROUP BY
 
             CustomUserStorageProvider customUserStorageProvider = new CustomUserStorageProvider(keycloakSession, model);
             UserAdapter response = customUserStorageProvider.addUser(realmModel, username);
-            verify(connection).prepareStatement(expectedQuery, Statement.RETURN_GENERATED_KEYS);
+            verify(connection).prepareStatement(expectedQuery);
             verify(preparedStatement).setString(1, "email");
             verify(preparedStatement).setString(2, "");
             verify(preparedStatement).setString(3, "");
