@@ -348,7 +348,7 @@ GROUP BY
             verify(preparedStatement).setString(3, "");
             verify(preparedStatement).setString(eq(4), anyString());
             verify(preparedStatement).setLong(eq(5), anyLong());
-            verify(preparedStatement).executeUpdate();
+            verify(preparedStatement).executeQuery();
             assertThat(response.getId(), is("keycloak_id"));
             assertThat(response.getUserId(), is(1));
             assertThat(response.getUsername(), is("email"));
