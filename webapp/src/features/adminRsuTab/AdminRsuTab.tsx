@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import AdminAddRsu from '../adminAddRsu/AdminAddRsu'
 import AdminEditRsu, { AdminEditRsuFormType } from '../adminEditRsu/AdminEditRsu'
 import AdminTable, { buildAdminTableQueryParams } from '../../components/AdminTable'
@@ -17,12 +17,7 @@ import toast from 'react-hot-toast'
 import { useTheme, Typography } from '@mui/material'
 import { DeleteOutline, ModeEditOutline } from '@mui/icons-material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import {
-  useLazyGetAllRsusQuery,
-  useDeleteRsuMutation,
-  useDeleteMultipleRsusMutation,
-  useGetAllRsusQuery,
-} from '../api/rsuApiSlice'
+import { useLazyGetAllRsusQuery, useDeleteRsuMutation, useDeleteMultipleRsusMutation } from '../api/rsuApiSlice'
 
 const AdminRsuTab = () => {
   const navigate = useNavigate()
@@ -33,14 +28,6 @@ const AdminRsuTab = () => {
 
   const tableRef = useRef<any>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const [currentParams, setCurrentParams] = useState({
-    page: 0,
-    size: 20,
-    sort: 'ip,asc',
-    search: '',
-    organization: organization || '',
-  })
 
   const [trigger] = useLazyGetAllRsusQuery()
 
@@ -195,7 +182,6 @@ const AdminRsuTab = () => {
     },
   ]
 
-
   const handleQueryChange = useCallback(
     async (query) => {
       setIsRefreshing(true)
@@ -211,7 +197,6 @@ const AdminRsuTab = () => {
 
         // Store current query for comparison
         currentQueryRef.current = params
-        setCurrentParams(params) // Update params for subscription
 
         // Trigger the query and await the result
         const result = await trigger(params).unwrap()
