@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, type MutableRefObject } from 'react'
 import { act, render } from '@testing-library/react'
 import { useAdminTableQuerySync } from './useAdminTableQuerySync'
 import { vi } from 'vitest'
@@ -13,18 +13,11 @@ type HarnessProps = {
   isRefreshing: boolean
   currentPage: number
   subscribedData?: SubscribedData
-  tableRef: React.MutableRefObject<any>
+  tableRef: MutableRefObject<any>
   onHookReady?: (hook: ReturnType<typeof useAdminTableQuerySync>) => void
 }
 
-const Harness = ({
-  organization,
-  isRefreshing,
-  currentPage,
-  subscribedData,
-  tableRef,
-  onHookReady,
-}: HarnessProps) => {
+const Harness = ({ organization, isRefreshing, currentPage, subscribedData, tableRef, onHookReady }: HarnessProps) => {
   const hook = useAdminTableQuerySync({
     organization,
     tableRef,
@@ -46,7 +39,9 @@ describe('useAdminTableQuerySync', () => {
     const tableRef = { current: { onQueryChange } }
     let hookApi: ReturnType<typeof useAdminTableQuerySync> | undefined
 
-    render(<Harness isRefreshing={false} currentPage={0} tableRef={tableRef} onHookReady={(hook) => (hookApi = hook)} />)
+    render(
+      <Harness isRefreshing={false} currentPage={0} tableRef={tableRef} onHookReady={(hook) => (hookApi = hook)} />
+    )
 
     act(() => {
       hookApi?.handleRefresh()

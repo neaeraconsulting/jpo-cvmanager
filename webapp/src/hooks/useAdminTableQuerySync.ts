@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, type MutableRefObject } from 'react'
 
 type QueryParams = {
   page: number
@@ -13,7 +13,7 @@ type PaginatedResult = {
   totalElements?: number
 }
 
-type TableRef = React.MutableRefObject<any>
+type TableRef = MutableRefObject<any>
 
 type UseAdminTableQuerySyncArgs = {
   organization: string | undefined
