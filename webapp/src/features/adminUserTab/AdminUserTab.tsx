@@ -54,7 +54,6 @@ const AdminUserTab = () => {
       setIsRefreshing(true)
 
       try {
-        console.log('ADMIN_USER_QUERY Handling query change with params:', query)
         const params = buildAdminTableQueryParams(query, columns, organization, 'first_name', 'asc')
 
         // Check if organization changed - if so, reset to page 0
@@ -71,8 +70,6 @@ const AdminUserTab = () => {
         const result = await trigger(params).unwrap()
 
         markTableRenderedData(params, result)
-
-        console.log('ADMIN_USER_QUERY', result.content.length)
 
         return {
           data: result.content || [],
