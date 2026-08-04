@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import AdminAddRsu from '../adminAddRsu/AdminAddRsu'
 import AdminEditRsu, { AdminEditRsuFormType } from '../adminEditRsu/AdminEditRsu'
 import AdminTable, { buildAdminTableQueryParams } from '../../components/AdminTable'
@@ -17,7 +17,12 @@ import toast from 'react-hot-toast'
 import { useTheme, Typography } from '@mui/material'
 import { DeleteOutline, ModeEditOutline } from '@mui/icons-material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import { useLazyGetAllRsusQuery, useDeleteRsuMutation, useDeleteMultipleRsusMutation } from '../api/rsuApiSlice'
+import {
+  useLazyGetAllRsusQuery,
+  useDeleteRsuMutation,
+  useDeleteMultipleRsusMutation,
+  useGetAllRsusQuery,
+} from '../api/rsuApiSlice'
 
 const AdminRsuTab = () => {
   const navigate = useNavigate()
@@ -28,10 +33,21 @@ const AdminRsuTab = () => {
 
   const tableRef = useRef<any>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [currentParams, setCurrentParams] = useState({
+    page: 0,
+    size: 20,
+    sort: 'ip,asc',
+    search: '',
+    organization: organization || '',
+  })
 
   const [trigger] = useLazyGetAllRsusQuery()
+  const { data: subscribedData } = useGetAllRsusQuery(currentParams, {
+    skip: !organization,
+  })
 
-  const currentQueryRef = useRef(null)
+  const currentQueryRef = useRef<any>(null)
+  const lastRenderedDataSignatureRef = useRef<string | null>(null)
 
   const [deleteRsuApi] = useDeleteRsuMutation()
   const [deleteMultipleRsusApi] = useDeleteMultipleRsusMutation()
@@ -197,9 +213,16 @@ const AdminRsuTab = () => {
 
         // Store current query for comparison
         currentQueryRef.current = params
+        setCurrentParams(params)
 
         // Trigger the query and await the result
         const result = await trigger(params).unwrap()
+        lastRenderedDataSignatureRef.current = JSON.stringify({
+          page: params.page,
+          organization: params.organization,
+          totalCount: result.totalElements || 0,
+          content: result.content || [],
+        })
 
         return {
           data: result.content || [],
@@ -220,6 +243,25 @@ const AdminRsuTab = () => {
     },
     [trigger, organization]
   )
+
+  useEffect(() => {
+    if (!subscribedData || !tableRef.current?.onQueryChange || isRefreshing) {
+      return
+    }
+
+    const nextSignature = JSON.stringify({
+      page: currentParams.page,
+      organization: organization,
+      totalCount: subscribedData.totalElements || 0,
+      content: subscribedData.content || [],
+    })
+
+    // Avoid feedback loops: refresh only when cache updates differ from what the table already rendered.
+    if (lastRenderedDataSignatureRef.current !== nextSignature) {
+      lastRenderedDataSignatureRef.current = nextSignature
+      tableRef.current.onQueryChange()
+    }
+  }, [subscribedData, organization, currentParams.page, isRefreshing])
 
   const onEdit = (row: AdminEditRsuFormType) => {
     navigate('editRsu/' + row.ip)

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import AdminAddUser from '../adminAddUser/AdminAddUser'
 import AdminEditUser from '../adminEditUser/AdminEditUser'
 import AdminTable, { buildAdminTableQueryParams } from '../../components/AdminTable'
@@ -14,7 +14,12 @@ import { NotFound } from '../../pages/404'
 import toast from 'react-hot-toast'
 import { DeleteOutline, ModeEditOutline } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
-import { useDeleteMultipleUsersMutation, useDeleteUserMutation, useLazyGetUsersQuery } from '../api/userApiSlice'
+import {
+  useDeleteMultipleUsersMutation,
+  useDeleteUserMutation,
+  useGetUsersQuery,
+  useLazyGetUsersQuery,
+} from '../api/userApiSlice'
 
 const AdminUserTab = () => {
   const navigate = useNavigate()
@@ -23,15 +28,27 @@ const AdminUserTab = () => {
 
   const tableRef = useRef<any>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [currentParams, setCurrentParams] = useState({
+    page: 0,
+    size: 20,
+    sort: 'first_name,asc',
+    search: '',
+    organization: organization || '',
+  })
 
   const [trigger] = useLazyGetUsersQuery()
+  const { data: subscribedData } = useGetUsersQuery(currentParams, {
+    skip: !organization,
+  })
 
-  const currentQueryRef = useRef(null)
+  const currentQueryRef = useRef<any>(null)
+  const lastRenderedDataSignatureRef = useRef<string | null>(null)
   const handleQueryChange = useCallback(
     async (query) => {
       setIsRefreshing(true)
 
       try {
+        console.log('ADMIN_USER_QUERY Handling query change with params:', query)
         const params = buildAdminTableQueryParams(query, columns, organization, 'first_name', 'asc')
 
         // Check if organization changed - if so, reset to page 0
@@ -42,11 +59,19 @@ const AdminUserTab = () => {
 
         // Store current query for comparison
         currentQueryRef.current = params
+        setCurrentParams(params)
 
         // Trigger the query and await the result
         const result = await trigger(params).unwrap()
 
-        console.log(result.content[0])
+        lastRenderedDataSignatureRef.current = JSON.stringify({
+          page: params.page,
+          organization: params.organization,
+          totalCount: result.totalElements || 0,
+          content: result.content || [],
+        })
+
+        console.log('ADMIN_USER_QUERY', result.content.length)
 
         return {
           data: result.content || [],
@@ -67,6 +92,24 @@ const AdminUserTab = () => {
     },
     [trigger, organization]
   )
+
+  useEffect(() => {
+    if (!subscribedData || !tableRef.current?.onQueryChange || isRefreshing) {
+      return
+    }
+
+    const nextSignature = JSON.stringify({
+      page: currentParams.page,
+      organization: organization,
+      totalCount: subscribedData.totalElements || 0,
+      content: subscribedData.content || [],
+    })
+
+    if (lastRenderedDataSignatureRef.current !== nextSignature) {
+      lastRenderedDataSignatureRef.current = nextSignature
+      tableRef.current.onQueryChange()
+    }
+  }, [subscribedData, organization, currentParams.page, isRefreshing])
 
   const handleRefresh = () => {
     console.log('Refreshing table data...')
