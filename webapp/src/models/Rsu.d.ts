@@ -1,7 +1,6 @@
 export type CountsListElement = { key: string; rsu: string; road: string; count: number }
 
 export type AdminRsu = {
-  orig_ip: string
   ip: string
   geo_position: {
     latitude: string
@@ -21,7 +20,6 @@ export type AdminRsu = {
 }
 
 export type AdminRsuPatch = Partial<{
-  orig_ip: string
   ip: string
   geo_position: {
     latitude: string
