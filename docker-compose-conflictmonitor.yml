@@ -7,7 +7,7 @@ services:
     profiles:
       - conflictmonitor
       - conflictmonitor_only
-    image: ${DOCKERHUB_HOST:-usdotjpoode}/jpo-conflictmonitor:${DOCKERHUB_RELEASE:-2026-q3}
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/jpo-conflictmonitor:${DOCKERHUB_RELEASE:-2026-q2}
     restart: ${RESTART_POLICY:-on-failure:3}
     ports:
       - '8082:8082'
@@ -63,7 +63,7 @@ services:
     profiles:
       - conflictmonitor
       - ode
-    image: ${DOCKERHUB_HOST:-usdotjpoode}/jpo-ode:${DOCKERHUB_RELEASE:-2026-q3}
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/jpo-ode:${DOCKERHUB_RELEASE:-2026-q2}
     restart: ${RESTART_POLICY:-on-failure:3}
     deploy:
       resources:
@@ -120,8 +120,8 @@ services:
         condition: service_healthy
         required: false
     volumes:
-      - ${DOCKER_SHARED_VOLUME}:/jpo-ode
-      - ${DOCKER_SHARED_VOLUME}/uploads:/home/uploads
+      - ${DOCKER_SHARED_VOLUME:-./resources/ode}:/jpo-ode
+      - ${DOCKER_SHARED_VOLUME:-./resources/ode}/uploads:/home/uploads
     healthcheck:
       test: ['CMD', 'wget', '--spider', 'http://localhost:8080']
       interval: 5s
@@ -137,7 +137,7 @@ services:
     profiles:
       - conflictmonitor
       - adm
-    image: ${DOCKERHUB_HOST:-usdotjpoode}/asn1_codec:${DOCKERHUB_RELEASE:-2026-q3}
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/asn1_codec:${DOCKERHUB_RELEASE:-2026-q2}
     restart: ${RESTART_POLICY:-on-failure:3}
     deploy:
       resources:
@@ -156,7 +156,7 @@ services:
         condition: service_healthy
         required: false
     volumes:
-      - ${DOCKER_SHARED_VOLUME}:/asn1_codec_share
+      - ${DOCKER_SHARED_VOLUME:-./resources/ode}:/asn1_codec_share
     logging:
       options:
         max-size: '10m'
@@ -166,7 +166,7 @@ services:
     profiles:
       - conflictmonitor
       - aem
-    image: ${DOCKERHUB_HOST:-usdotjpoode}/asn1_codec:${DOCKERHUB_RELEASE:-2026-q3}
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/asn1_codec:${DOCKERHUB_RELEASE:-2026-q2}
     restart: ${RESTART_POLICY:-on-failure:3}
     deploy:
       resources:
@@ -185,7 +185,7 @@ services:
         condition: service_healthy
         required: false
     volumes:
-      - ${DOCKER_SHARED_VOLUME}:/asn1_codec_share
+      - ${DOCKER_SHARED_VOLUME:-./resources/ode}:/asn1_codec_share
     logging:
       options:
         max-size: '10m'
@@ -195,7 +195,7 @@ services:
     profiles:
       - conflictmonitor
       - geojsonconverter
-    image: ${DOCKERHUB_HOST:-usdotjpoode}/geojsonconverter:${DOCKERHUB_RELEASE:-2026-q3}
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/geojsonconverter:${DOCKERHUB_RELEASE:-2026-q2}
     restart: ${RESTART_POLICY:-on-failure:3}
     deploy:
       resources:
@@ -230,7 +230,7 @@ services:
     profiles:
       - conflictmonitor
       - deduplicator
-    image: ${DOCKERHUB_HOST:-usdotjpoode}/jpo-deduplicator:${DOCKERHUB_RELEASE:-2026-q3}
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/jpo-deduplicator:${DOCKERHUB_RELEASE:-2026-q2}
     privileged: false # Set true to allow writing to /proc/sys/vm/drop_caches
     restart: ${RESTART_POLICY:-on-failure:3}
     ports:
