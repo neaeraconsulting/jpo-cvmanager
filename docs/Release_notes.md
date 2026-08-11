@@ -74,11 +74,11 @@ Enhancements in this release:
 [CDOT PR 321](https://github.com/CDOT-CV/jpo-cvmanager/pull/321): Update iapi admin new intersection UI to use Spring Boot backend
 [CDOT PR 322](https://github.com/CDOT-CV/jpo-cvmanager/pull/322): Intersection API Email Subscription Management Endpoints
 [CDOT PR 323](https://github.com/CDOT-CV/jpo-cvmanager/pull/323): Intersection API Email Subscription Management Frontend
-[** CDOT PR 324](https://github.com/CDOT-CV/jpo-cvmanager/pull/324): Re-enabling swagger documentation for intersection api
+[CDOT PR 324](https://github.com/CDOT-CV/jpo-cvmanager/pull/324): Re-enabling swagger documentation for intersection api
 [CDOT PR 327](https://github.com/CDOT-CV/jpo-cvmanager/pull/327): Intersection API Email Controller Rate Limiting
 [CDOT PR 333](https://github.com/CDOT-CV/jpo-cvmanager/pull/333): Replace manual SQL scripts with Flyway-managed migrations
 [CDOT PR 334](https://github.com/CDOT-CV/jpo-cvmanager/pull/334): Normalize schema constraints, indexes, and JPA annotations
-[** CDOT PR 335](https://github.com/CDOT-CV/jpo-cvmanager/pull/335): Intersection map Bugfixes
+[CDOT PR 335](https://github.com/CDOT-CV/jpo-cvmanager/pull/335): Intersection map Bugfixes
 [CDOT PR 337](https://github.com/CDOT-CV/jpo-cvmanager/pull/337): Fixed issue where dismissing a notification returns a 500 error
 [CDOT PR 338](https://github.com/CDOT-CV/jpo-cvmanager/pull/338): RSU Info Endpoint Migration
 [CDOT PR 339](https://github.com/CDOT-CV/jpo-cvmanager/pull/339): Add manufacturer name to RSU DTO
