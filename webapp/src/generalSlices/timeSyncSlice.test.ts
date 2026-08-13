@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import reducer, {
   // async thunks
   syncTimeOffset,
@@ -14,7 +15,12 @@ import reducer, {
   setTimeOffset,
 } from './timeSyncSlice'
 
-const TIME_SERVER_URL_UTC = 'https://timeapi.io/api/Time/current/zone?timeZone=Etc/UTC'
+// Mock EnvironmentVars
+vi.mock('../EnvironmentVars', () => ({
+  default: {
+    timeSyncEndpoint: 'http://localhost:8089/timesync/utc-millis',
+  },
+}))
 
 describe('timeSync reducer', () => {
   it('should handle initial state', () => {
@@ -70,21 +76,7 @@ describe('async thunks', () => {
   it('syncTimeOffset should synchronize time offset (mocked fetch)', async () => {
     const mockServerTime = '2025-10-20T21:28:30.0960336Z'
     const mockServerTimeMillis = new Date(mockServerTime).getTime()
-    const mockResponse = {
-      year: 2025,
-      month: 10,
-      day: 20,
-      hour: 21,
-      minute: 28,
-      seconds: 30,
-      milliSeconds: 96,
-      dateTime: '2025-10-20T21:28:30.0960336',
-      date: '10/20/2025',
-      time: '21:28',
-      timeZone: 'Etc/UTC',
-      dayOfWeek: 'Monday',
-      dstActive: false,
-    } // Mock fetch response
+    const mockResponse = mockServerTimeMillis + 5 // Mock fetch response
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     })
@@ -99,10 +91,10 @@ describe('async thunks', () => {
 
     const result = await action(dispatch, getState, undefined)
 
-    const expectedOffset = 0
+    const expectedOffset = 5
 
-    expect(result.payload).toBeCloseTo(expectedOffset, -2) // Allow slight timing differences
-    expect(global.fetch).toHaveBeenCalledWith(TIME_SERVER_URL_UTC)
+    expect(result.payload).toBeCloseTo(expectedOffset) // Allow slight timing differences
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8089/timesync/utc-millis')
 
     // Restore original Date.now
     Date.now = originalDateNow
