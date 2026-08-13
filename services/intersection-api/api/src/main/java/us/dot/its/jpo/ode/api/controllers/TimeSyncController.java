@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
         and 18000 requests/hour globally across all callers). \
         Exceeding either configured limit returns HTTP 429.""")
 @ApiResponses(value = {
-        @ApiResponse(responseCode = "429", description = "Rate limit exceeded — per-user and global limits are configurable (defaults: 360 req/hr per user, 1600 req/hr global)"),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+        @ApiResponse(responseCode = "429", description = "Rate limit exceeded — per-user and global limits are configurable (defaults: 360 req/hr per user, 18000 req/hr global)"),
+                @ApiResponse(responseCode = "500", description = "Internal Server Error")
 })
 @RequestMapping("/timesync")
 @RequiredArgsConstructor
