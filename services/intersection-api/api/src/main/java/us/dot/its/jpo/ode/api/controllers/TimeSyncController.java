@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
         Endpoints for retrieving the current time in milliseconds. \
         All endpoints under /timesync/* are rate-limited using configurable per-user and global limits \
         (defaults: 360 requests/hour per user, keyed on Authorization token or remote IP for unauthenticated requests, \
-        and 1600 requests/hour globally across all callers). \
+        and 18000 requests/hour globally across all callers). \
         Exceeding either configured limit returns HTTP 429.""")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "429", description = "Rate limit exceeded — per-user and global limits are configurable (defaults: 360 req/hr per user, 1600 req/hr global)"),

@@ -24,7 +24,7 @@ export const syncTimeOffset = createAsyncThunk('timeSync/syncTimeOffset', async 
   const response = await fetch(EnvironmentVars.timeSyncEndpoint)
   const end = Date.now() // Record the end time
 
-  let rtt = end - start // Calculate round-trip time
+  const rtt = end - start // Calculate round-trip time
   const serverTime: number = await response.json()
 
   const currentTime = Date.now()
