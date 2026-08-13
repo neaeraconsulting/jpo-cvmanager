@@ -25,11 +25,10 @@ export const syncTimeOffset = createAsyncThunk('timeSync/syncTimeOffset', async 
   const end = Date.now() // Record the end time
 
   let rtt = end - start // Calculate round-trip time
-  console.debug('Time sync round trip time (unused):', rtt, 'ms')
   const serverTime: number = await response.json()
 
   const currentTime = Date.now()
-  return serverTime - currentTime
+  return serverTime - currentTime - Math.floor(rtt / 2) // Adjust for half of the round-trip time
 })
 
 const timeSyncSlice = createSlice({
@@ -43,8 +42,7 @@ const timeSyncSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(syncTimeOffset.fulfilled, (state, action) => {
-      //   state.timeOffsetMillis = action.payload
-      console.log('Time offset synchronized:', action.payload, 'ms')
+      state.timeOffsetMillis = action.payload
       state.lastSync = new Date().toISOString()
       console.debug('Time offset synchronized:', action.payload, 'ms')
     })
