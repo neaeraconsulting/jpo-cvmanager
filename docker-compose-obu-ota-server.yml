@@ -18,6 +18,8 @@ services:
 
       OTA_USERNAME: ${OTA_USERNAME}
       OTA_PASSWORD: ${OTA_PASSWORD}
+
+      NGINX_ENCRYPTION: ${NGINX_ENCRYPTION}
     volumes:
       - ./resources/ota/firmwares:/firmwares
     logging:
