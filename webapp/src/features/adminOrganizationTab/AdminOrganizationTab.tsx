@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import AdminAddOrganization from '../adminAddOrganization/AdminAddOrganization'
 import AdminOrganizationTabRsu from '../adminOrganizationTabRsu/AdminOrganizationTabRsu'
 import AdminOrganizationTabIntersection from '../adminOrganizationTabIntersection/AdminOrganizationTabIntersection'
@@ -31,11 +31,17 @@ import { RootState } from '../../store'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { NotFound } from '../../pages/404'
 import toast from 'react-hot-toast'
-import { changeOrganization, selectOrganizationName, setOrganizationList } from '../../generalSlices/userSlice'
+import {
+  changeOrganizationName,
+  selectOrganizationName,
+  deleteOrgAssociationByOrgName,
+} from '../../generalSlices/userSlice'
 import { ConditionalRenderIntersection, ConditionalRenderRsu } from '../../feature-flags'
 import { ContainedIconButton } from '../../styles/components/ContainedIconButton'
 import { alpha, Button, useTheme } from '@mui/material'
-import { AddCircleOutline, EditOutlined, Refresh } from '@mui/icons-material'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import Refresh from '@mui/icons-material/Refresh'
 
 const AdminOrganizationTab = () => {
   const dispatch: ThunkDispatch<RootState, void, AnyAction> = useDispatch()
@@ -53,8 +59,8 @@ const AdminOrganizationTab = () => {
   const intersectionTableData = useSelector(selectIntersectionTableData)
   const userTableData = useSelector(selectUserTableData)
 
-  const notifySuccess = (message: string) => toast.success(message)
-  const notifyError = (message: string) => toast.error(message)
+  const notifySuccess = useCallback((message: string) => toast.success(message), [])
+  const notifyError = useCallback((message: string) => toast.error(message), [])
   const defaultOrgName = useSelector(selectOrganizationName)
 
   useEffect(() => {
@@ -74,29 +80,32 @@ const AdminOrganizationTab = () => {
         }
       }
     })
-  }, [])
+  }, [defaultOrgName, notifyError, dispatch])
 
-  const getSelectedOrgData = () => {
+  const getSelectedOrgData = useCallback(() => {
     dispatch(getOrgData({ orgName: selectedOrgName })).then((data: any) => {
       if (data !== undefined && !data.payload?.success) {
         notifyError('Failed to obtain data due to error: ' + data.payload?.message)
       }
     })
-  }
+  }, [dispatch, notifyError, selectedOrgName])
 
-  const updateTableData = (orgName: string) => {
-    dispatch(getOrgData({ orgName })).then((data: any) => {
-      if (!data.payload.success) {
-        notifyError('Failed to obtain data due to error: ' + data.payload.message)
-      }
-    })
-  }
+  const updateTableData = useCallback(
+    (orgName: string) => {
+      dispatch(getOrgData({ orgName })).then((data: any) => {
+        if (!data.payload.success) {
+          notifyError('Failed to obtain data due to error: ' + data.payload.message)
+        }
+      })
+    },
+    [dispatch, notifyError]
+  )
 
   useEffect(() => {
     if (selectedOrgName != undefined) {
       getSelectedOrgData()
     }
-  }, [selectedOrgName, dispatch])
+  }, [selectedOrgName, getSelectedOrgData, dispatch])
 
   useEffect(() => {
     dispatch(updateTitle())
@@ -114,8 +123,8 @@ const AdminOrganizationTab = () => {
         notifyError('Failed to delete organization due to error: ' + data.payload.message)
       }
     })
-    dispatch(setOrganizationList({ value: { name: orgName }, type: 'delete' }))
-    dispatch(changeOrganization(orgData[0].name))
+    dispatch(deleteOrgAssociationByOrgName(orgName))
+    dispatch(changeOrganizationName(orgData[0].name))
   }
 
   return (

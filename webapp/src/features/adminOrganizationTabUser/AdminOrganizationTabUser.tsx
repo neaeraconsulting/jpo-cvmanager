@@ -20,10 +20,11 @@ import {
   setSelectedUserList,
 } from './adminOrganizationTabUserSlice'
 import {
+  addOrModifyOrgAssociationByOrgName,
+  deleteOrgAssociationByOrgName,
   selectAuthLoginData,
   selectEmail,
   selectLoadingGlobal,
-  setOrganizationList,
 } from '../../generalSlices/userSlice'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -35,7 +36,8 @@ import { AdminOrgUser, selectSelectedOrgName } from '../adminOrganizationTab/adm
 import toast from 'react-hot-toast'
 
 import { useTheme } from '@mui/material'
-import { AddCircleOutline, DeleteOutline } from '@mui/icons-material'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import { useGetAllUsersNotInOrganizationQuery } from '../api/organizationApiSlice'
 import { useGetUserAllowedSelectionsQuery } from '../api/userApiSlice'
 
@@ -207,7 +209,7 @@ const AdminOrganizationTabUser = (props: AdminOrganizationTabUserProps) => {
     })
 
     if (row.email === authLoginData?.data?.email) {
-      dispatch(setOrganizationList({ value: { name: props.selectedOrg, role: row.role }, type: 'delete' }))
+      dispatch(deleteOrgAssociationByOrgName(props.selectedOrg))
     }
   }
 
@@ -229,7 +231,7 @@ const AdminOrganizationTabUser = (props: AdminOrganizationTabUserProps) => {
 
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].email === authLoginData?.data?.email) {
-        dispatch(setOrganizationList({ value: { name: props.selectedOrg, role: rows[i].role }, type: 'delete' }))
+        dispatch(deleteOrgAssociationByOrgName(props.selectedOrg))
       }
     }
   }
@@ -256,7 +258,7 @@ const AdminOrganizationTabUser = (props: AdminOrganizationTabUserProps) => {
 
     for (let i = 0; i < userList.length; i++) {
       if (userList[i].email === authLoginData?.data?.email) {
-        dispatch(setOrganizationList({ value: { name: props.selectedOrg, role: userList[i].role }, type: 'add' }))
+        dispatch(addOrModifyOrgAssociationByOrgName({ name: props.selectedOrg, role: userList[i].role as UserRole }))
       }
     }
   }

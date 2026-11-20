@@ -2,10 +2,6 @@ import { useEffect, useMemo } from 'react'
 import './App.css'
 import { useSelector, useDispatch } from 'react-redux'
 import {
-  // Actions
-  getRsuData,
-} from './generalSlices/rsuSlice'
-import {
   keycloakLogin,
   selectAuthLoginData,
   selectOrganizationName,
@@ -40,7 +36,7 @@ const App = () => {
   const isDarkTheme = useBrowserThemeDetector()
   const theme = useMemo(
     () => getCurrentTheme(isDarkTheme, EnvironmentVars.WEBAPP_THEME_LIGHT, EnvironmentVars.WEBAPP_THEME_DARK),
-    [isDarkTheme, EnvironmentVars.WEBAPP_THEME_LIGHT, EnvironmentVars.WEBAPP_THEME_DARK]
+    [isDarkTheme]
   )
   useEffect(() => {
     keycloak.updateToken(300).catch(function () {
@@ -60,7 +56,6 @@ const App = () => {
   }, [dispatch])
 
   useEffect(() => {
-    dispatch(getRsuData())
     dispatch(getIntersections(organizationName))
   }, [authLoginData, organizationName, dispatch])
 

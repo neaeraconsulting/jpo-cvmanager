@@ -14,6 +14,7 @@ import reducer, {
 } from './configSlice'
 import RsuApi from '../apis/rsu-api'
 import RsuFirmwareApi from '../apis/intersections/rsu-firmware-api'
+import RsuRebootApi from '../apis/intersections/rsu-reboot-api'
 import { RootState } from '../store'
 
 describe('config reducer', () => {
@@ -25,6 +26,7 @@ describe('config reducer', () => {
         errorState: '',
         changeSuccess: false,
         rebootChangeSuccess: false,
+      rebootRequestedIp: undefined,
         firmwareUpgradeAvailable: false,
         firmwareUpgradeName: '',
         firmwareUpgradeMsg: '',
@@ -49,6 +51,7 @@ describe('async thunks', () => {
       errorState: null,
       changeSuccess: false,
       rebootChangeSuccess: false,
+      rebootRequestedIp: undefined,
       firmwareUpgradeAvailable: false,
       firmwareUpgradeName: '',
       firmwareUpgradeMsg: '',
@@ -77,7 +80,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -88,7 +91,7 @@ describe('async thunks', () => {
       const action = getCachedSnmpFwdConfigsFromDatabase(rsu_ip)
 
       const resp = await action(dispatch, getState, undefined)
-      expect(RsuApi.getCachedRsuMsgFwdConfigsFromDatabase).toHaveBeenCalledWith('token', 'name', '', { rsu_ip })
+      expect(RsuApi.getCachedRsuMsgFwdConfigsFromDatabase).toHaveBeenCalledWith('token', 'Org 1', '', { rsu_ip })
       expect(resp.payload).toEqual({ msgFwdConfig: 'test', errorState: '' })
     })
 
@@ -147,7 +150,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -158,7 +161,7 @@ describe('async thunks', () => {
       const action = getRsuMsgConfigsFromRsu(rsu_ip)
 
       const resp = await action(dispatch, getState, undefined)
-      expect(RsuApi.getRsuMsgConfigsFromRsu).toHaveBeenCalledWith('token', 'name', '', { rsu_ip })
+      expect(RsuApi.getRsuMsgConfigsFromRsu).toHaveBeenCalledWith('token', 'Org 1', '', { rsu_ip })
       expect(resp.payload).toEqual({ msgFwdConfig: 'test', errorState: '' })
     })
 
@@ -168,7 +171,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -188,7 +191,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -210,7 +213,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -232,7 +235,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -307,7 +310,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
         config: {
@@ -327,7 +330,7 @@ describe('async thunks', () => {
       let resp = await action(dispatch, getState, undefined)
       expect(RsuApi.postRsuData).toHaveBeenCalledWith(
         'token',
-        'name',
+        'Org 1',
         {
           command: 'rsufwdsnmpset',
           rsu_ip: arg,
@@ -382,7 +385,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -398,7 +401,7 @@ describe('async thunks', () => {
       let resp = await action(dispatch, getState, undefined)
       expect(RsuApi.postRsuData).toHaveBeenCalledWith(
         'token',
-        'name',
+        'Org 1',
         {
           command: 'rsufwdsnmpset-del',
           rsu_ip: arg.ipList,
@@ -446,34 +449,53 @@ describe('async thunks', () => {
   })
 
   describe('rebootRsu', () => {
-    it('returns and calls the api correctly', async () => {
+    it('awaits acceptance from the Intersection API', async () => {
       const dispatch = jest.fn()
       const getState = jest.fn().mockReturnValue({
-        user: {
-          value: {
-            authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
-          },
-        },
+        user: { value: { authLoginData: { token: 'token' }, organization: { name: 'Org 1' } } },
       })
-      RsuApi.postRsuData = jest.fn().mockReturnValue({ status: 200 })
-
-      const arg = ['1.2.3.4', '2.3.4.5']
-
-      const action = rebootRsu(arg)
-
-      const resp = await action(dispatch, getState, undefined)
-      expect(RsuApi.postRsuData).toHaveBeenCalledWith(
-        'token',
-        'name',
-        {
-          command: 'reboot',
-          rsu_ip: arg,
-          args: {},
-        },
-        ''
+      let finish: (value: { requestId: string; status: 'ACCEPTED' }) => void
+      const api = jest.spyOn(RsuRebootApi, 'reboot').mockImplementation(
+        () => new Promise((resolve) => {
+          finish = resolve
+        })
       )
-      expect(resp.payload).toEqual(undefined)
+      try {
+        const promise = rebootRsu('192.0.2.10')(dispatch, getState, undefined)
+        expect(dispatch).toHaveBeenCalledTimes(1)
+        expect(api).toHaveBeenCalledWith('token', 'Org 1', '192.0.2.10')
+        finish({ requestId: 'test-request', status: 'ACCEPTED' })
+        const result = await promise
+        expect(result.type).toBe('config/rebootRsu/fulfilled')
+        expect(result.payload).toEqual({ rsuIp: '192.0.2.10', requestId: 'test-request', status: 'ACCEPTED' })
+      } finally {
+        api.mockRestore()
+      }
+    })
+
+    it('rejects failed admission rather than showing success', async () => {
+      const api = jest.spyOn(RsuRebootApi, 'reboot').mockRejectedValue(new Error('Reboot capacity is busy'))
+      try {
+        const result = await rebootRsu('192.0.2.10')(jest.fn(), () => ({
+          user: { value: { authLoginData: { token: 'token' }, organization: { name: 'Org 1' } } },
+        }) as RootState, undefined)
+        expect(result.type).toBe('config/rebootRsu/rejected')
+      } finally {
+        api.mockRestore()
+      }
+    })
+
+    it('rejects a missing target without sending a reboot request', async () => {
+      const api = jest.spyOn(RsuRebootApi, 'reboot')
+      try {
+        const result = await rebootRsu('')(jest.fn(), () => ({
+          user: { value: { authLoginData: { token: 'token' }, organization: { name: 'Org 1' } } },
+        }) as RootState, undefined)
+        expect(result.type).toBe('config/rebootRsu/rejected')
+        expect(api).not.toHaveBeenCalled()
+      } finally {
+        api.mockRestore()
+      }
     })
 
     it('Updates the state correctly pending', async () => {
@@ -485,13 +507,15 @@ describe('async thunks', () => {
       expect(state).toEqual({ loading, value: { ...initialState.value, rebootChangeSuccess } })
     })
 
-    it('Updates the state correctly fulfilled', async () => {
-      const loading = false
-      const rebootChangeSuccess = true
+    it('Updates the state correctly fulfilled', () => {
       const state = reducer(initialState, {
         type: 'config/rebootRsu/fulfilled',
+        payload: { rsuIp: '192.0.2.10', requestId: 'test-request', status: 'ACCEPTED' },
       })
-      expect(state).toEqual({ loading, value: { ...initialState.value, rebootChangeSuccess } })
+      expect(state).toEqual({
+        loading: false,
+        value: { ...initialState.value, rebootChangeSuccess: true, rebootRequestedIp: '192.0.2.10' },
+      })
     })
 
     it('Updates the state correctly rejected', async () => {
@@ -511,7 +535,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -547,7 +571,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -617,7 +641,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -644,7 +668,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -673,7 +697,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { organization: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -711,7 +735,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -738,7 +762,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -765,7 +789,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -860,7 +884,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -888,7 +912,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -916,7 +940,7 @@ describe('async thunks', () => {
         user: {
           value: {
             authLoginData: { token: 'token' },
-            organization: { name: 'name' },
+            organization: { name: 'Org 1' },
           },
         },
       })
@@ -960,6 +984,7 @@ describe('reducers', () => {
       errorState: null,
       changeSuccess: false,
       rebootChangeSuccess: false,
+      rebootRequestedIp: undefined,
       firmwareUpgradeAvailable: false,
       firmwareUpgradeName: '',
       firmwareUpgradeMsg: '',

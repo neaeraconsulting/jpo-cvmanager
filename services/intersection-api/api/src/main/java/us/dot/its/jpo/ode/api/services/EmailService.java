@@ -3,8 +3,6 @@ package us.dot.its.jpo.ode.api.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -58,30 +56,26 @@ public class EmailService {
 
     public List<EmailRecipient> getUsersForNotificationType(EmailCategory category, EmailFrequency frequency) {
         return userEmailNotificationRepository
-                .findUsersByNotificationType(category.getCategoryKey(), frequency.toString()).stream()
+                .findUsersByNotificationType(category.getCategoryKey(), frequency.toQueryValue()).stream()
                 .map(email -> new EmailRecipient(email, null))
                 .toList();
     }
 
     public List<EmailRecipient> getUsersForNotificationTypeByRsu(EmailCategory category, String rsuIp,
             EmailFrequency frequency) {
-        try {
-            return userEmailNotificationRepository
-                    .findUsersByNotificationTypeAndRsu(category.getCategoryKey(), frequency.toString(),
-                            InetAddress.getByName(rsuIp))
-                    .stream()
-                    .map(email -> new EmailRecipient(email, null))
-                    .toList();
-        } catch (UnknownHostException e) {
-            log.error("Invalid RSU IP address: {}", rsuIp, e);
-            return Collections.emptyList();
-        }
+        return userEmailNotificationRepository
+                        .findUsersByNotificationTypeAndRsu(category.getCategoryKey(), frequency.toQueryValue(),
+                        RsuManagementService.toIpv4Address(rsuIp))
+                .stream()
+                .map(email -> new EmailRecipient(email, null))
+                .toList();
     }
 
     public List<EmailRecipient> getUsersForNotificationTypeByOrganization(EmailCategory category, String orgName,
             EmailFrequency frequency) {
         return userEmailNotificationRepository
-                .findUsersByNotificationTypeAndOrganization(category.getCategoryKey(), frequency.toString(), orgName)
+                .findUsersByNotificationTypeAndOrganization(category.getCategoryKey(), frequency.toQueryValue(),
+                        orgName)
                 .stream()
                 .map(email -> new EmailRecipient(email, null))
                 .toList();

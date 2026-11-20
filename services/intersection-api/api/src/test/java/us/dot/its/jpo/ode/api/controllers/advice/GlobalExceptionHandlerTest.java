@@ -7,10 +7,13 @@ import jakarta.validation.Path;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mock.http.MockHttpInputMessage;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -18,13 +21,19 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
+import us.dot.its.jpo.ode.api.services.PrometheusService;
 import us.dot.its.jpo.ode.api.services.RsuCredentialManagementService;
 import us.dot.its.jpo.ode.api.services.RsuUpgradeService;
 import us.dot.its.jpo.ode.api.services.SnmpCredentialManagementService;
+import us.dot.its.jpo.ode.api.services.firmware.FirmwareUploadService.FirmwareUploadVerificationException;
+import us.dot.its.jpo.ode.api.services.firmware.FirmwareUploadService.FirmwareVersionAlreadyExistsException;
+import us.dot.its.jpo.ode.api.storage.ObjectStorageUnavailableException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -37,6 +46,35 @@ import org.junit.jupiter.api.Nested;
 
 class GlobalExceptionHandlerTest {
     GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+    @Nested
+    class HandleFirmwareExceptionsTests {
+        @Test
+        void unavailableStorageReturnsServiceUnavailableWithDetail() {
+            ProblemDetail response = handler.handleObjectStorageUnavailableException(
+                    new ObjectStorageUnavailableException("Provider is not configured"));
+            assertEquals(503, response.getStatus());
+            assertEquals("Provider is not configured", response.getDetail());
+        }
+
+        @Test
+        void existingDestinationReturnsConflictWithDetail() {
+            ProblemDetail response = handler.handleFirmwareVersionAlreadyExistsException(
+                    new FirmwareVersionAlreadyExistsException(
+                            "Firmware already exists"));
+            assertEquals(409, response.getStatus());
+            assertEquals("Firmware already exists", response.getDetail());
+        }
+
+        @Test
+        void verificationFailureReturnsConflictWithDetail() {
+            ProblemDetail response = handler.handleFirmwareUploadVerificationException(
+                    new FirmwareUploadVerificationException(
+                            "Checksum does not match"));
+            assertEquals(409, response.getStatus());
+            assertEquals("Checksum does not match", response.getDetail());
+        }
+    }
 
     @Nested
     class HandleEntityNotFoundTests {
@@ -60,6 +98,23 @@ class GlobalExceptionHandlerTest {
 
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
             assertTrue(response.getBody().getDetail().contains("192.168.1.1"));
+        }
+    }
+
+    @Nested
+    class HandleNoResourceFoundTests {
+
+        @Test
+        void returnsNotFoundForUnmatchedEndpoint() throws Exception {
+            NoResourceFoundException ex = new NoResourceFoundException(
+                    HttpMethod.GET, "/favicon.ico", "favicon.ico");
+
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            handler.handleNoResourceFound(ex, new MockHttpServletRequest(), response);
+
+            assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+            assertEquals("No endpoint GET /favicon.ico.",
+                    new ObjectMapper().readTree(response.getContentAsString()).get("detail").asText());
         }
     }
 
@@ -208,6 +263,17 @@ class GlobalExceptionHandlerTest {
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
             assertEquals("Invalid request parameters", response.getBody().getDetail());
+        }
+
+        @Test
+        void testBadRequestPrometheusOomDetail() {
+            ResponseStatusException ex = new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    PrometheusService.OOM_USER_MESSAGE);
+
+            ErrorResponse response = handler.handleResponseStatusException(ex);
+
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            assertEquals(PrometheusService.OOM_USER_MESSAGE, response.getBody().getDetail());
         }
 
         @Test

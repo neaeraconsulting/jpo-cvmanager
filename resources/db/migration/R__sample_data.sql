@@ -17,9 +17,10 @@
 --   Intersections: Org1 -> 1,2,3   Org2 -> 1,4,5   Org3 -> 1,6,7
 --   Users:         Org1 -> 1,2,3   Org2 -> 1,4,5   Org3 -> 1,6,7
 
-INSERT INTO public.manufacturers(name)
-  VALUES ('Commsignia'), ('Yunex'), ('Kapsch')
-  ON CONFLICT (name) DO NOTHING;
+INSERT INTO public.manufacturers(name, firmware_file_extension)
+  VALUES ('Commsignia', '.tar.sig'), ('Yunex', '.tar'), ('Kapsch', NULL)
+  ON CONFLICT (name) DO UPDATE
+    SET firmware_file_extension = EXCLUDED.firmware_file_extension;
 
 INSERT INTO public.rsu_models(name, supported_radio, manufacturer)
   VALUES ('ITS-RS4-M', 'DSRC,C-V2X', 1), ('RSU2X US', 'DSRC,C-V2X', 2), ('RIS-9260', 'C-V2X', 3)
@@ -27,12 +28,20 @@ INSERT INTO public.rsu_models(name, supported_radio, manufacturer)
 
 INSERT INTO public.firmware_images(name, model, install_package, version)
   VALUES ('y20.0.0', 1, 'install_y20_0_0.tar', 'y20.0.0'), ('y20.1.0', 1, 'install_y20_1_0.tar', 'y20.1.0'), ('k1.0.0', 3, 'install_k1_0_0.tar', 'k1.0.0')
-  ON CONFLICT (name) DO NOTHING;
+  ON CONFLICT (model, version) DO NOTHING;
 
--- Three upgrade rules across the three firmware images. UNIQUE (from_id, to_id)
--- means a third meaningful rule is only possible because firmware_image 3 exists.
+-- Demonstrates a registered legacy firmware image whose expected cloud object
+-- is absent. The API derives its path in the active storage container at runtime.
+INSERT INTO public.firmware_images(
+    name, model, install_package, version)
+  VALUES (
+    'missing-file-demo', 1, 'missing-file-demo.tar.sig',
+    'missing-file-demo')
+  ON CONFLICT (model, version) DO NOTHING;
+
+-- A source has one destination, and both versions belong to the same model.
 INSERT INTO public.firmware_upgrade_rules(from_id, to_id)
-  VALUES (1, 2), (2, 3), (1, 3)
+  VALUES (1, 2)
   ON CONFLICT DO NOTHING;
 
 INSERT INTO public.organizations(name)
@@ -92,13 +101,13 @@ INSERT INTO public.rsu_organization(rsu_id, organization_id)
 -- User 1 is the shared core (member of all three orgs); users 2-7 are org-unique.
 INSERT INTO public.users(keycloak_id, email, first_name, last_name, created_timestamp, super_user)
   VALUES
-    ('fc3d8729-8526-4aaa-805b-d64bf3b93860'::UUID, 'test@gmail.com',  'Test',  'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), '1'),
-    ('a1b2c3d4-0000-4aaa-805b-000000000002'::UUID, 'test2@gmail.com', 'Test2', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), '0'),
-    ('a1b2c3d4-0000-4aaa-805b-000000000003'::UUID, 'test3@gmail.com', 'Test3', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), '0'),
-    ('a1b2c3d4-0000-4aaa-805b-000000000004'::UUID, 'test4@gmail.com', 'Test4', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), '0'),
-    ('a1b2c3d4-0000-4aaa-805b-000000000005'::UUID, 'test5@gmail.com', 'Test5', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), '0'),
-    ('a1b2c3d4-0000-4aaa-805b-000000000006'::UUID, 'test6@gmail.com', 'Test6', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), '0'),
-    ('a1b2c3d4-0000-4aaa-805b-000000000007'::UUID, 'test7@gmail.com', 'Test7', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), '0')
+    ('fc3d8729-8526-4aaa-805b-d64bf3b93860'::UUID, 'test@gmail.com',  'Test',  'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), TRUE),
+    ('a1b2c3d4-0000-4aaa-805b-000000000002'::UUID, 'test2@gmail.com', 'Test2', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), FALSE),
+    ('a1b2c3d4-0000-4aaa-805b-000000000003'::UUID, 'test3@gmail.com', 'Test3', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), FALSE),
+    ('a1b2c3d4-0000-4aaa-805b-000000000004'::UUID, 'test4@gmail.com', 'Test4', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), FALSE),
+    ('a1b2c3d4-0000-4aaa-805b-000000000005'::UUID, 'test5@gmail.com', 'Test5', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), FALSE),
+    ('a1b2c3d4-0000-4aaa-805b-000000000006'::UUID, 'test6@gmail.com', 'Test6', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), FALSE),
+    ('a1b2c3d4-0000-4aaa-805b-000000000007'::UUID, 'test7@gmail.com', 'Test7', 'User', (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), FALSE)
   ON CONFLICT (email) DO NOTHING;
 
 -- User 1 is shared across all three orgs; each org gets two more unique users, so
@@ -115,14 +124,14 @@ INSERT INTO public.snmp_msgfwd_type(name)
 
 INSERT INTO public.snmp_msgfwd_config(rsu_id, msgfwd_type, snmp_index, message_type, dest_ipv4, dest_port, start_datetime, end_datetime, active, security)
   VALUES
-    (1, 1, 1, 'BSM', '10.0.0.80', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '0'),
-    (1, 1, 2, 'BSM', '10.0.0.81', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '0'),
-    (1, 1, 3, 'BSM', '10.0.0.82', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '1'),
-    (2, 2, 1, 'BSM', '10.0.0.80', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '1'),
-    (2, 2, 2, 'BSM', '10.0.0.81', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '1'),
-    (2, 3, 1, 'MAP', '10.0.0.80', 44920, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '1'),
-    (2, 3, 2, 'SPAT', '10.0.0.80', 44910, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '0'),
-    (3, 1, 1, 'BSM', '10.0.0.80', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', '1', '0')
+    (1, 1, 1, 'BSM', '10.0.0.80', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, FALSE),
+    (1, 1, 2, 'BSM', '10.0.0.81', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, FALSE),
+    (1, 1, 3, 'BSM', '10.0.0.82', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, TRUE),
+    (2, 2, 1, 'BSM', '10.0.0.80', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, TRUE),
+    (2, 2, 2, 'BSM', '10.0.0.81', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, TRUE),
+    (2, 3, 1, 'MAP', '10.0.0.80', 44920, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, TRUE),
+    (2, 3, 2, 'SPAT', '10.0.0.80', 44910, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, FALSE),
+    (3, 1, 1, 'BSM', '10.0.0.80', 46800, '2024/04/01T00:00:00', '2034/04/01T00:00:00', TRUE, FALSE)
   ON CONFLICT DO NOTHING;
 
 INSERT INTO public.email_type(email_type, required_role, description, supports_immediate, supports_hourly, supports_daily, supports_weekly, supports_monthly)
@@ -199,12 +208,12 @@ INSERT INTO public.max_retry_limit_reached_instances(rsu_id, reached_at, target_
 INSERT INTO public.ping(timestamp, result, rsu_id)
   SELECT ts, res, rid
   FROM (VALUES
-    ('2026/06/01T00:00:00'::timestamp, B'1', 1),
-    ('2026/06/01T00:05:00'::timestamp, B'1', 1),
-    ('2026/06/01T00:10:00'::timestamp, B'0', 1),
-    ('2026/06/01T00:00:00'::timestamp, B'1', 2),
-    ('2026/06/01T00:05:00'::timestamp, B'0', 2),
-    ('2026/06/01T00:10:00'::timestamp, B'1', 2)
+    ('2026/06/01T00:00:00'::timestamp, TRUE, 1),
+    ('2026/06/01T00:05:00'::timestamp, TRUE, 1),
+    ('2026/06/01T00:10:00'::timestamp, FALSE, 1),
+    ('2026/06/01T00:00:00'::timestamp, TRUE, 2),
+    ('2026/06/01T00:05:00'::timestamp, FALSE, 2),
+    ('2026/06/01T00:10:00'::timestamp, TRUE, 2)
   ) AS seed(ts, res, rid)
   WHERE NOT EXISTS (SELECT 1 FROM public.ping);
 
@@ -223,11 +232,41 @@ INSERT INTO public.rsu_health(timestamp, health, rsu_id)
 INSERT INTO public.scms_health(timestamp, health, expiration, rsu_id)
   SELECT ts, hlth, exp, rid
   FROM (VALUES
-    ('2026/06/01T00:00:00'::timestamp, B'1', '2027/06/01T00:00:00'::timestamp, 1),
-    ('2026/06/01T00:05:00'::timestamp, B'1', '2027/06/01T00:00:00'::timestamp, 1),
-    ('2026/06/01T00:10:00'::timestamp, B'0', '2027/06/01T00:00:00'::timestamp, 1),
-    ('2026/06/01T00:00:00'::timestamp, B'1', '2027/06/01T00:00:00'::timestamp, 2),
-    ('2026/06/01T00:05:00'::timestamp, B'1', '2027/06/01T00:00:00'::timestamp, 2),
-    ('2026/06/01T00:10:00'::timestamp, B'0', '2027/06/01T00:00:00'::timestamp, 2)
+    ('2026/06/01T00:00:00'::timestamp, TRUE, '2027/06/01T00:00:00'::timestamp, 1),
+    ('2026/06/01T00:05:00'::timestamp, TRUE, '2027/06/01T00:00:00'::timestamp, 1),
+    ('2026/06/01T00:10:00'::timestamp, FALSE, '2027/06/01T00:00:00'::timestamp, 1),
+    ('2026/06/01T00:00:00'::timestamp, TRUE, '2027/06/01T00:00:00'::timestamp, 2),
+    ('2026/06/01T00:05:00'::timestamp, TRUE, '2027/06/01T00:00:00'::timestamp, 2),
+    ('2026/06/01T00:10:00'::timestamp, FALSE, '2027/06/01T00:00:00'::timestamp, 2)
   ) AS seed(ts, hlth, exp, rid)
   WHERE NOT EXISTS (SELECT 1 FROM public.scms_health);
+
+INSERT INTO public.obu_ota_requests(obu_sn, manufacturer, request_datetime, origin_ip,
+    obu_firmware_version, requested_firmware_version, error_status, error_message)
+  SELECT sn, m.manufacturer_id, ts, ip::inet, cur, req, err, msg
+  FROM (VALUES
+    ('OBU-SAMPLE-0001', '2026/06/01T00:00:00'::timestamp, '10.0.0.21', 'y20.47.0-b220001',
+      'ob4-generic-ro-secureboot-y20.48.2-b228647.tar.sig', FALSE, ''),
+    ('OBU-SAMPLE-0002', '2026/06/01T00:05:00'::timestamp, '10.0.0.22', 'y20.47.0-b220001',
+      'ob4-generic-ro-secureboot-y20.48.2-b228647.tar.sig', FALSE, ''),
+    ('OBU-SAMPLE-0002', '2026/06/01T00:10:00'::timestamp, '10.0.0.22', 'y20.48.2-b228647',
+      'ob4-generic-ro-secureboot-y20.49.0-b230000.tar.sig', TRUE, '404: Firmware not found')
+  ) AS seed(sn, ts, ip, cur, req, err, msg)
+  JOIN public.manufacturers m ON m.name = 'Commsignia'
+  WHERE NOT EXISTS (SELECT 1 FROM public.obu_ota_requests);
+
+-- OBU firmware served from the OBU OTA server's local firmware mount
+-- (resources/ota/firmwares). Only the published row is offered to OBUs.
+INSERT INTO public.obu_firmware_images(manufacturer, file_name, device_type, variant, release_version,
+    writable_system_partition, secure_boot, storage_provider, storage_container, object_name,
+    published, published_at, published_by)
+  SELECT m.manufacturer_id, seed.file_name, 'OBU', 'ob4-generic', seed.release_version, seed.writable, seed.secure,
+    'local', 'local', 'ota/Commsignia/' || seed.file_name,
+    seed.published, CASE WHEN seed.published THEN CURRENT_TIMESTAMP END,
+    CASE WHEN seed.published THEN 'sample-data' END
+  FROM (VALUES
+    ('ob4-generic-ro-secureboot-y20.48.2-b228647.tar.sig', 'y20.48.2-b228647', false, true, true),
+    ('ob4-generic-rw-y20.49.0-b230000.tar.sig', 'y20.49.0-b230000', true, false, false)
+  ) AS seed(file_name, release_version, writable, secure, published)
+  JOIN public.manufacturers m ON m.name = 'Commsignia'
+  ON CONFLICT (manufacturer, file_name) DO NOTHING;

@@ -1,20 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import '../features/adminRsuTab/Admin.css'
 import { alpha, Box, Tab, Tabs, useTheme } from '@mui/material'
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { evaluateFeatureFlags } from '../feature-flags'
-import {
-  ArticleOutlined,
-  CellTowerOutlined,
-  GroupOutlined,
-  HighlightAlt,
-  HomeOutlined,
-  NotificationsNoneOutlined,
-  TrafficOutlined,
-  TuneOutlined,
-  WorkspacesOutlined,
-} from '@mui/icons-material'
+import ArticleOutlined from '@mui/icons-material/ArticleOutlined'
+import CellTowerOutlined from '@mui/icons-material/CellTowerOutlined'
+import GroupOutlined from '@mui/icons-material/GroupOutlined'
+import HighlightAlt from '@mui/icons-material/HighlightAlt'
+import HomeOutlined from '@mui/icons-material/HomeOutlined'
+import NotificationsNoneOutlined from '@mui/icons-material/NotificationsNoneOutlined'
+import TrafficOutlined from '@mui/icons-material/TrafficOutlined'
+import TuneOutlined from '@mui/icons-material/TuneOutlined'
+import SystemUpdateAltOutlined from '@mui/icons-material/SystemUpdateAltOutlined'
+import WorkspacesOutlined from '@mui/icons-material/WorkspacesOutlined'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -70,6 +69,8 @@ function VerticalTabs(props: VerticalTabProps) {
         return <GroupOutlined />
       case 'Organizations':
         return <WorkspacesOutlined />
+      case 'Firmware':
+        return <SystemUpdateAltOutlined />
       case 'Dashboard':
         return <HomeOutlined />
       case 'Notifications':
@@ -94,12 +95,12 @@ function VerticalTabs(props: VerticalTabProps) {
    * @function
    * @returns {string} The key of the selected tab or the default tab key if no match is found.
    */
-  const getSelectedTab = () => {
+  const getSelectedTab = useCallback(() => {
     let baseRoute = location.pathname
     if (parentRoute && baseRoute.includes(parentRoute)) {
       baseRoute = baseRoute.substring(baseRoute.indexOf(parentRoute) + parentRoute.length)
     }
-    let pathParts = baseRoute.split('/')
+    const pathParts = baseRoute.split('/')
     for (let i = 0; i < pathParts.length; i++) {
       const part = pathParts[i]
       if (filteredTabs.some((tab) => tab.path === part)) {
@@ -107,13 +108,13 @@ function VerticalTabs(props: VerticalTabProps) {
       }
     }
     return defaultTabKey
-  }
+  }, [location.pathname, parentRoute, filteredTabs, defaultTabKey])
 
   const [value, setValue] = useState<string | number>(getSelectedTab())
 
   useEffect(() => {
     setValue(getSelectedTab())
-  }, [location.pathname])
+  }, [location.pathname, getSelectedTab])
 
   const handleChange = (_e, newValue) => {
     setValue(newValue)

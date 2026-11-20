@@ -24,20 +24,6 @@ export type RsuInfo = {
   properties: RsuProperties
 }
 
-export type RsuOnlineStatus = 'online' | 'offline' | 'unstable'
-
-export type RsuOnlineStatusRespMultiple = {
-  [ip: string]: {
-    current_status: RsuOnlineStatus
-    last_online: string | undefined
-  }
-}
-export type RsuOnlineStatusRespSingle = {
-  ip: string
-  current_status: RsuOnlineStatus
-  last_online: string | undefined
-}
-
 export type MessageType = 'SPAT' | 'MAP' | 'BSM' | 'SRM' | 'SSM' | 'TIM' | 'PSM'
 
 export type RsuCounts = {
@@ -68,15 +54,8 @@ export type IssScmsStatus = {
   }
 }
 
-export type GeoMsgDataPostBody = {
-  msg_type: string
-  start: string
-  end: string
-  geometry: number[][]
-}
-
 export type RsuCommandPostBody = {
-  command: 'rsufwdsnmpwalk' | 'rsufwdsnmpset' | 'rsufwdsnmpset-del' | 'reboot' | 'upgrade-rsu' | 'upgrade-check'
+  command: 'rsufwdsnmpwalk' | 'rsufwdsnmpset' | 'rsufwdsnmpset-del' | 'upgrade-rsu' | 'upgrade-check'
   rsu_ip: string[]
   args: object
 }
